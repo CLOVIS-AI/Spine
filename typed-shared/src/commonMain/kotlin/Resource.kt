@@ -25,11 +25,12 @@ abstract class Resource(
 		get() = _endpoints.asSequence()
 
 	protected fun endpoint(method: HttpMethod, path: String? = null) = Endpoint(
-		this@Resource,
-		method,
-		extendPath(path),
-		Unit::class,
-		Unit::class,
+		resource = this@Resource,
+		method = method,
+		path = extendPath(path),
+		requestType = Unit::class,
+		responseType = Unit::class,
+		buildParameters = { Parameters.Empty },
 	).asBuilder { _endpoints += it }
 
 	protected fun get(path: String? = null) = endpoint(HttpMethod.Get, path)
