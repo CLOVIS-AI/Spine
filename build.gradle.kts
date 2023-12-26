@@ -18,7 +18,15 @@ plugins {
 
 dependencies {
 	// List the 'library' projects
-	// dokkatoo(projects.core)
+	dokkatoo(projects.typedShared)
+	dokkatoo(projects.typedServer)
+	dokkatoo(projects.typedClient)
+	dokkatoo(projects.safeShared)
+	dokkatoo(projects.safeServer)
+	dokkatoo(projects.safeClient)
+	dokkatoo(projects.spineShared)
+	dokkatoo(projects.spineServer)
+	dokkatoo(projects.spineClient)
 }
 
 // region Check the users of the project didn't forget to rename the group

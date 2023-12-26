@@ -1,15 +1,22 @@
-# Playground: Gradle
+# Spine: Typesafe HTTP APIs with Ktor and Arrow
 
-<!-- When using the Playground to bootstrap a project, replace this by your project description. -->
-This a template to easily bootstrap your projects.
+OpenSavvy Spine is a library to declare typesafe endpoints in code shared between your multiplatform clients and servers.
 
-> This project is part of the OpenSavvy Playground.
-> To learn more, visit [this page](docs/playground/README.md).
+## Typed Ktor
+
+Typed Ktor is an effort to bring type safety to multiplatform Ktor projects: by declaring endpoints and DTOs in common code, we can avoid many bugs.  
+
+## Safe Ktor
+
+Safe Ktor is a collection of DSLs to make error management in HTTP endpoints explicit, using Arrow.
+
+## Spine
+
+Spine is the combination of Typed and Safe Ktor.
 
 ## License
 
-<!-- Mentions under which license you are publishing the project. -->
-<!-- Add the full text to the LICENSE file. -->
+This project is licensed under the [Apache 2.0 license](LICENSE).
 
 ## Contributing
 

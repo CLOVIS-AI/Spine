@@ -7,7 +7,7 @@
  * in the user manual at https://docs.gradle.org/8.1.1/userguide/multi_project_builds.html
  */
 
-rootProject.name = "Playground"
+rootProject.name = "Spine"
 
 pluginManagement {
 	repositories {
@@ -28,4 +28,20 @@ plugins {
 include(
 	"gradle:templates:template-app",
 	"gradle:templates:template-lib",
+
+	"typed-shared",
+	"typed-server",
+	"typed-client",
+
+	"safe-shared",
+	"safe-server",
+	"safe-client",
+
+	"spine-shared",
+	"spine-server",
+	"spine-client",
+
+	"demo-shared",
+	"demo-server",
+	"demo-client",
 )
