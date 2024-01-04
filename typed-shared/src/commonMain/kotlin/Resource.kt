@@ -1,6 +1,7 @@
 package opensavvy.spine.typed
 
 import io.ktor.http.*
+import opensavvy.spine.typed.Endpoint.Builder
 
 abstract class Resource(
 	val slug: String,
@@ -24,14 +25,21 @@ abstract class Resource(
 	val directEndpoints: Sequence<AnyEndpoint>
 		get() = _endpoints.asSequence()
 
-	protected fun endpoint(method: HttpMethod, path: String? = null) = Endpoint(
-		resource = this@Resource,
-		method = method,
-		path = extendPath(path),
-		requestType = Unit::class,
-		responseType = Unit::class,
-		buildParameters = { Parameters.Empty },
-	).asBuilder { _endpoints += it }
+	@Suppress("DEPRECATION_ERROR")
+	private fun endpoint(method: HttpMethod, path: String? = null) =
+		Builder(
+			Endpoint(
+				resource = this@Resource,
+				method = method,
+				path = extendPath(path),
+				Endpoint.TypeWrapper(
+					requestType = Unit::class,
+					responseType = Unit::class,
+					buildParameters = { Parameters.Empty },
+				),
+			),
+			onCreate = { _endpoints += it },
+		)
 
 	protected fun get(path: String? = null) = endpoint(HttpMethod.Get, path)
 	protected fun post(path: String? = null) = endpoint(HttpMethod.Post, path)

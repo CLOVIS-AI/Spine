@@ -32,12 +32,30 @@ class Endpoint<Types> internal constructor(
 
 	// region Builder
 
-	internal fun asBuilder(onCreate: (AnyEndpoint) -> Unit) = Builder(this, onCreate)
-
-	class Builder<Types> internal constructor(
+	@Suppress("DEPRECATION_ERROR")
+	class Builder<In : Any, Out : Any, Params : Parameters, Types : TypeWrapper<In, Out, Params>> internal constructor(
 		private val endpoint: Endpoint<Types>,
 		private val onCreate: (AnyEndpoint) -> Unit,
 	) {
+
+		fun <T : Any> request(kClass: KClass<T>) = Builder(
+			Endpoint(endpoint.resource, endpoint.method, endpoint.path, endpoint.types.withRequest(kClass)),
+			onCreate,
+		)
+
+		inline fun <reified T : Any> request() = request(T::class)
+
+		fun <T : Any> response(kClass: KClass<T>) = Builder(
+			Endpoint(endpoint.resource, endpoint.method, endpoint.path, endpoint.types.withResponse(kClass)),
+			onCreate,
+		)
+
+		inline fun <reified T : Any> response() = response(T::class)
+
+		fun <P : Parameters> parameters(build: (ParameterStorage) -> P) = Builder(
+			Endpoint(endpoint.resource, endpoint.method, endpoint.path, endpoint.types.withParameters(build)),
+			onCreate,
+		)
 
 		@Suppress("MemberVisibilityCanBePrivate") // some people prefer calling '.build()' than the 'by' keyword magic
 		fun build(): Endpoint<Types> {
@@ -46,32 +64,6 @@ class Endpoint<Types> internal constructor(
 		}
 
 		operator fun provideDelegate(thisRef: Any?, property: KProperty<*>) = build()
-
-		companion object {
-			@Suppress("DEPRECATION_ERROR")
-			fun <T : Any, In : Any, Out : Any, Params : Parameters> Builder<TypeWrapper<In, Out, Params>>.request(kClass: KClass<T>) = Builder(
-				Endpoint(endpoint.resource, endpoint.method, endpoint.path, endpoint.types.withRequest(kClass)),
-				onCreate
-			)
-
-			@Suppress("DEPRECATION_ERROR")
-			inline fun <reified T : Any, In : Any, Out : Any, Params : Parameters> Builder<TypeWrapper<In, Out, Params>>.request() = request(T::class)
-
-			@Suppress("DEPRECATION_ERROR")
-			fun <T : Any, In : Any, Out : Any, Params : Parameters> Builder<TypeWrapper<In, Out, Params>>.response(kClass: KClass<T>) = Builder(
-				Endpoint(endpoint.resource, endpoint.method, endpoint.path, endpoint.types.withResponse(kClass)),
-				onCreate
-			)
-
-			@Suppress("DEPRECATION_ERROR")
-			inline fun <reified T : Any, In : Any, Out : Any, Params : Parameters> Builder<TypeWrapper<In, Out, Params>>.response() = response(T::class)
-
-			@Suppress("DEPRECATION_ERROR")
-			fun <In : Any, Out : Any, Params : Parameters, P : Parameters> Builder<TypeWrapper<In, Out, Params>>.parameters(build: (ParameterStorage) -> P) = Builder(
-				Endpoint(endpoint.resource, endpoint.method, endpoint.path, endpoint.types.withParameters(build)),
-				onCreate
-			)
-		}
 	}
 
 	// endregion
