@@ -24,7 +24,8 @@ abstract class Resource(
 	val directEndpoints: Sequence<AnyEndpoint>
 		get() = _endpoints.asSequence()
 
-	protected fun endpoint(method: HttpMethod, path: String? = null) = Endpoint(
+	@Suppress("DEPRECATION_ERROR")
+	private fun endpoint(method: HttpMethod, path: String? = null) = Endpoint(
 		resource = this@Resource,
 		method = method,
 		path = extendPath(path),
