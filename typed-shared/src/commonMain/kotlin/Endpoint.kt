@@ -4,8 +4,12 @@ import io.ktor.http.*
 import kotlin.reflect.KClass
 import kotlin.reflect.KProperty
 
-typealias AnyEndpoint = Endpoint<*, *, *>
+sealed interface AnyEndpoint
 
+@Deprecated(
+	message = "The Endpoint class may go through source-incompatible changes in the future, even in minor releases. Read its documentation to learn more.",
+	level = DeprecationLevel.HIDDEN,
+)
 class Endpoint<In : Any, Out : Any, Params : Parameters> internal constructor(
 	val resource: Resource,
 	val method: HttpMethod,
@@ -13,7 +17,7 @@ class Endpoint<In : Any, Out : Any, Params : Parameters> internal constructor(
 	val requestType: KClass<In>,
 	val responseType: KClass<Out>,
 	val buildParameters: (ParameterStorage) -> Params,
-) {
+) : AnyEndpoint {
 
 	operator fun getValue(thisRef: Any?, property: KProperty<*>) = this
 
@@ -23,6 +27,7 @@ class Endpoint<In : Any, Out : Any, Params : Parameters> internal constructor(
 
 	internal fun asBuilder(onCreate: (AnyEndpoint) -> Unit) = Builder(this, onCreate)
 
+	@Suppress("DEPRECATION_ERROR")
 	class Builder<In : Any, Out : Any, Params : Parameters> internal constructor(
 		private val endpoint: Endpoint<In, Out, Params>,
 		private val onCreate: (AnyEndpoint) -> Unit,
