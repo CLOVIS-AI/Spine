@@ -10,6 +10,9 @@ arrow = "1.2.1"
 # https://gitlab.com/opensavvy/prepared/-/releases
 prepared = "0.6.0"
 
+# https://github.com/Kotlin/kotlinx.coroutines/releases
+kotlinx-coroutines = "1.7.3"
+
 [plugins]
 
 [libraries]
@@ -26,5 +29,7 @@ arrow-core = { module = "io.arrow-kt:arrow-core", version.ref = "arrow" }
 
 prepared = { module = "dev.opensavvy.prepared:runner-kotest", version.ref = "prepared" }
 prepared-arrow = { module = "dev.opensavvy.prepared:compat-arrow", version.ref = "prepared" }
+
+kotlinx-coroutines = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinx-coroutines" }
 
 [bundles]
