@@ -17,6 +17,7 @@ kotlin {
 	sourceSets.commonMain.dependencies {
 		api(projects.typedShared)
 
+		api(libs.kotlinx.coroutines)
 		api(libs.ktor.client.core)
 	}
 
