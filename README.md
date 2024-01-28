@@ -4,7 +4,60 @@ OpenSavvy Spine is a library to declare typesafe endpoints in code shared betwee
 
 ## Typed Ktor
 
-Typed Ktor is an effort to bring type safety to multiplatform Ktor projects: by declaring endpoints and DTOs in common code, we can avoid many bugs.  
+Declare your endpoints and DTOs in your common code:
+
+```kotlin
+// First, declare your DTOs:
+// Here, we use KotlinX.Serialization.
+// Any serialization library supported by Ktor is supported by this project. 
+@Serializable
+data class User(
+	val name: String,
+	val active: Boolean,
+)
+
+// Next, declare your API endpoints:
+object Api : StaticResource("api", parent = null) {
+	object Users : StaticResource("users", parent = Api) {
+
+		class ListParameters(data: ParameterStorage) : Parameters(data) {
+			var includeInactive by parameter(default = true)
+		}
+
+		val list by get()
+			.parameters(::ListParameters)
+			.response<User>()
+
+		val create by post()
+			.request<User>()
+			.response<User>()
+
+	}
+}
+```
+
+Then, implement your routes on the server:
+
+```kotlin
+routing {
+	route(Api.Users.list) {
+		HttpStatusCode.OK to userRepository.list(includeInactive = parameters.includeInactive)
+	}
+
+	route(Api.Users.create) {
+		val result = userRepository.create(body)
+		HttpStatusCode.OK to result
+	}
+}
+```
+
+Finally, call the routes from your client:
+
+```kotlin
+val user = User("Test", active = true)
+client.request(Api.Users.create, user).isSuccessful() shouldBe true
+client.request(Api.Users.list).bodyOrNull() shouldContain user
+```
 
 ## Safe Ktor
 
