@@ -42,24 +42,27 @@ abstract class Resource(
 	protected fun head(path: String? = null) = endpoint(HttpMethod.Head, path)
 }
 
-val Resource.pathSegments: Sequence<String>
-	get() = sequence { generatePath(this@pathSegments) }
-
-private suspend fun SequenceScope<String>.generatePath(self: Resource) {
+private suspend fun SequenceScope<Resource>.hierarchy(self: Resource) {
 	val parent = self.parent
 
 	if (parent != null)
-		generatePath(parent)
+		hierarchy(parent)
 
-	yield(self.slug)
+	yield(self)
 }
 
-val Resource.path: String
-	get() = pathSegments.joinToString("/")
+val Resource.hierarchy: Sequence<Resource>
+	get() {
+		val self = this
+		return sequence { hierarchy(self) }
+	}
+
+val Resource.fullSlug: String
+	get() = hierarchy.map { it.slug }.joinToString("/")
 
 val Resource.endpoints: Sequence<AnyEndpoint>
 	get() = directEndpoints + children.flatMap { it.endpoints }
 
 internal fun Resource.extendPath(extension: String? = null) =
-	if (extension != null) "$path/$extension"
-	else path
+	if (extension != null) "$fullSlug/$extension"
+	else fullSlug

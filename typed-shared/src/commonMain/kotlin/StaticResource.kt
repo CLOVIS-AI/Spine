@@ -1,6 +1,12 @@
 package opensavvy.spine.typed
 
 abstract class StaticResource(
-	name: String,
+	slug: String,
 	parent: Resource?,
-) : Resource(name, parent)
+) : Resource(slug, parent) {
+
+	init {
+		// Static resources' slug must be a valid path segment, since they appear as-is in the URL
+		Path.Segment(slug)
+	}
+}

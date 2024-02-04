@@ -5,6 +5,7 @@ import opensavvy.prepared.runner.kotest.preparedSuite
 
 class TypedTests : StringSpec({
 	preparedSuite {
+		paths()
 		parameters()
 	}
 })
