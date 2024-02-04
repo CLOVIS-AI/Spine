@@ -1,9 +1,6 @@
 package opensavvy.spine.demo
 
-import opensavvy.spine.typed.DynamicResource
-import opensavvy.spine.typed.ParameterStorage
-import opensavvy.spine.typed.Parameters
-import opensavvy.spine.typed.StaticResource
+import opensavvy.spine.typed.*
 
 object Api : StaticResource("v1", parent = null) {
 
@@ -44,7 +41,7 @@ class UserDto {
 	class Params(
 		data: ParameterStorage,
 	) : Parameters(data) {
-		var archived by parameter("archived", false)
+		var archived by parameter(false)
 	}
 }
 

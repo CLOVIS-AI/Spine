@@ -1,5 +1,6 @@
 package opensavvy.spine.typed
 
+import kotlin.jvm.JvmInline
 import kotlin.reflect.KProperty
 
 typealias ParameterStorage = MutableMap<String, String>
@@ -15,15 +16,15 @@ typealias ParameterConstructor<P> = (ParameterStorage) -> P
  *
  * In common code, declare a class that inherits from [Parameters], and use it to declare the name and type of the available parameters:
  * ```kotlin
- * class MyRequestParameters : Parameters() {
- *     var param1: String? by parameter("param1")
+ * class MyRequestParameters(data: ParameterStorage) : Parameters(data) {
+ *     var param1: String? by parameter()
  *     var isSubscribed: Boolean by parameter("is_subscribed", default = false)
  * }
  * ```
  *
- * To create a new parameter bundle, use the standard library [apply] function:
+ * To create a new parameter bundle, use the helper [buildParameters] function:
  * ```kotlin
- * val example = MyRequestParameters().apply {
+ * val example = buildParameters(::MyRequestParameters) {
  *     param1 = "value"
  *     isSubscribed = true
  * }
@@ -46,23 +47,95 @@ abstract class Parameters(
 ) {
 
 	/**
+	 * Declares an optional parameter of type [T].
+	 *
+	 * If the parameter is missing, reading it will return [default] instead.
+	 *
+	 * The parameter is automatically named after the variable it is assigned to.
+	 *
+	 * ### Example
+	 *
+	 * ```kotlin
+	 * class ListUsers(data: ParameterStorage) : Parameters(data) {
+	 *     var includeArchived by parameter(default = false)
+	 * }
+	 * ```
+	 */
+	fun <T : Any> parameter(default: T) = UnnamedParameter(default)
+
+	/**
 	 * Declares an optional parameter [name] of type [T].
 	 *
 	 * If the parameter is missing, reading it will return [default] instead.
+	 *
+	 * ### Example
+	 *
+	 * ```kotlin
+	 * class ListUsers(data: ParameterStorage) : Parameters(data) {
+	 *     var includeArchived by parameter("include_archived", default = false)
+	 * }
+	 * ```
 	 */
 	fun <T : Any> parameter(name: String, default: T) = Parameter(name, default)
+
+	/**
+	 * Declares a parameter of type [T].
+	 *
+	 * If [T] is nullable, this function declares an optional parameter with a default value of `null`.
+	 * If [T] is non-nullable, this function declares a mandatory parameter which will throw a [NoSuchElementException] if no value is provided.
+	 *
+	 * The parameter is automatically named after the variable it is assigned to.
+	 *
+	 * ### Example
+	 *
+	 * ```kotlin
+	 * class ListUsers(data: ParameterStorage) : Parameters(data) {
+	 *     var includeArchived: String? by parameter()
+	 * }
+	 * ```
+	 */
+	fun <T : Any?> parameter() = UnnamedParameter<T>(null)
 
 	/**
 	 * Declares a parameter [name] of type [T].
 	 *
 	 * If [T] is nullable, this function declares an optional parameter with a default value of `null`.
 	 * If [T] is non-nullable, this function declares a mandatory parameter which will throw a [NoSuchElementException] if no value is provided.
+	 *
+	 * ### Example
+	 *
+	 * ```kotlin
+	 * class ListUsers(data: ParameterStorage) : Parameters(data) {
+	 *     var includeArchived: String? by parameter("include_archived")
+	 * }
+	 * ```
 	 */
-	fun <T : Any?> parameter(name: String) = Parameter<T>(name, defaultValue = null)
+	fun <T : Any?> parameter(name: String) = Parameter<T>(name, null)
 
-	// Internal type used to store the name of a parameter
-	// End users should not need to use it directly
-	inner class Parameter<@Suppress("unused") T>(val name: String, val defaultValue: T?) {
+	/**
+	 * Internal type used by the parameter declaration syntax.
+	 *
+	 * See [Parameters].
+	 */
+	@JvmInline
+	value class UnnamedParameter<T> internal constructor(val defaultValue: T?)
+
+	/**
+	 * A declared query parameter in an API schema.
+	 *
+	 * See [Parameters].
+	 */
+	class Parameter<T>(
+		/**
+		 * Name of the parameter as it appears in the URL.
+		 */
+		val name: String,
+
+		/**
+		 * The value that is substituted in if the URL does not contain this parameter.
+		 */
+		val defaultValue: T?,
+	) {
 
 		init {
 			require(name.isNotBlank()) { "The name of a parameter cannot be empty: '$name'" }
@@ -76,59 +149,85 @@ abstract class Parameters(
 	 * Use this instance for operations that take no parameters.
 	 */
 	object Empty : Parameters()
+}
 
-	// Accesses the value and converts it from a String
-	// This is what the 'by' keyword calls when reading from the value
-	// Everything it does is explained in the 'parameter' documentation
-	inline operator fun <reified T> Parameter<T>.getValue(thisRef: Any?, property: KProperty<*>): T {
-		val value = data[name] ?: return run {
-			if (defaultValue is T)
-				defaultValue
-			else
-				throw NoSuchElementException("The parameter '$name' is mandatory, but no value was provided.")
-		}
+/**
+ * Internal method used by the parameter declaration syntax.
+ *
+ * See [Parameters.parameter].
+ */
+inline operator fun <T> Parameters.UnnamedParameter<T>.provideDelegate(thisRef: Parameters, property: KProperty<*>) =
+	Parameters.Parameter(property.name, this.defaultValue)
 
-		return when (T::class) {
-			String::class -> value as T
-			Boolean::class -> value.toBooleanStrict() as T
-			Byte::class -> value.toByte() as T
-			Short::class -> value.toShort() as T
-			Int::class -> value.toInt() as T
-			Long::class -> value.toLong() as T
-			UByte::class -> value.toUByte() as T
-			UShort::class -> value.toUShort() as T
-			UInt::class -> value.toUInt() as T
-			ULong::class -> value.toULong() as T
-			Float::class -> value.toFloat() as T
-			Double::class -> value.toDouble() as T
-			else -> throw UnsupportedOperationException("The type ${T::class.simpleName ?: T::class.toString()} is not currently supported in parameters.")
-		}
+/**
+ * Internal method used by the parameter declaration syntax.
+ *
+ * See [Parameters.parameter].
+ */
+inline operator fun <reified T> Parameters.Parameter<T>.getValue(thisRef: Parameters, property: KProperty<*>): T {
+	val value = thisRef.data[name] ?: return run {
+		if (defaultValue is T)
+			defaultValue
+		else
+			throw NoSuchElementException("The parameter '${name}' is mandatory, but no value was provided.")
 	}
 
-	// Writes the value and converts it to a String
-	// This is what the 'by' keyword calls when writing to the value
-	// Everything it does is explained in the 'parameter' documentation
-	inline operator fun <reified T> Parameter<T>.setValue(thisRef: Any?, property: KProperty<*>, value: T) {
-		val str: String = when (T::class) {
-			String::class -> value.toString()
-			Boolean::class -> value.toString()
-			Byte::class -> value.toString()
-			Short::class -> value.toString()
-			Int::class -> value.toString()
-			Long::class -> value.toString()
-			UByte::class -> value.toString()
-			UShort::class -> value.toString()
-			UInt::class -> value.toString()
-			ULong::class -> value.toString()
-			Float::class -> value.toString()
-			Double::class -> value.toString()
-			else -> throw UnsupportedOperationException("The type ${T::class.simpleName ?: T::class.toString()} is not currently supported in parameters.")
-		}
-
-		data[name] = str
+	return when (T::class) {
+		String::class -> value as T
+		Boolean::class -> value.toBooleanStrict() as T
+		Byte::class -> value.toByte() as T
+		Short::class -> value.toShort() as T
+		Int::class -> value.toInt() as T
+		Long::class -> value.toLong() as T
+		UByte::class -> value.toUByte() as T
+		UShort::class -> value.toUShort() as T
+		UInt::class -> value.toUInt() as T
+		ULong::class -> value.toULong() as T
+		Float::class -> value.toFloat() as T
+		Double::class -> value.toDouble() as T
+		else -> throw UnsupportedOperationException("The type ${T::class.simpleName ?: T::class.toString()} is not currently supported in parameters.")
 	}
 }
 
+/**
+ * Internal method used by the parameter declaration syntax.
+ *
+ * See [Parameters.parameter].
+ */
+inline operator fun <reified T> Parameters.Parameter<T>.setValue(thisRef: Parameters, property: KProperty<*>, value: T) {
+	thisRef.data[name] = when (value) {
+		null -> value.toString()
+		is String -> value
+		is Boolean -> value.toString()
+		is Byte -> value.toString()
+		is Short -> value.toString()
+		is Int -> value.toString()
+		is Long -> value.toString()
+		is UByte -> value.toString()
+		is UShort -> value.toString()
+		is UInt -> value.toString()
+		is ULong -> value.toString()
+		is Float -> value.toString()
+		is Double -> value.toString()
+		else -> throw UnsupportedOperationException("The type ${T::class.simpleName ?: T::class.toString()} is not currently supported in parameters.")
+	}
+}
+
+/**
+ * Creates and configures a [Parameters] instance.
+ *
+ * ### Example
+ *
+ * ```kotlin
+ * class Example(data: ParameterStorage) : Parameters(data) {
+ *     var includeArchived by parameter(default = false)
+ * }
+ *
+ * val example = buildParameters(::Example) {
+ *     includeArchived = true
+ * }
+ * ```
+ */
 fun <P : Parameters> buildParameters(construct: ParameterConstructor<P>, block: P.() -> Unit): P {
 	return construct(HashMap()).apply(block)
 }
