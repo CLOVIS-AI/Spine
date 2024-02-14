@@ -2,5 +2,5 @@ package opensavvy.spine.typed
 
 abstract class DynamicResource(
 	slug: String,
-	parent: Resource?,
+	parent: Resource,
 ) : Resource(slug, parent)

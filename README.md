@@ -17,7 +17,7 @@ data class User(
 )
 
 // Next, declare your API endpoints:
-object Api : StaticResource("api", parent = null) {
+object Api : RootResource("api") {
 	object Users : StaticResource("users", parent = Api) {
 
 		class ListParameters(data: ParameterStorage) : Parameters(data) {

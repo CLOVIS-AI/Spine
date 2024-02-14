@@ -2,7 +2,7 @@ package opensavvy.spine.typed
 
 import io.ktor.http.*
 
-abstract class Resource(
+sealed class Resource(
 	val slug: String,
 	val parent: Resource?,
 ) {

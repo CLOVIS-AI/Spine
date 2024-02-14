@@ -1,9 +1,8 @@
 package opensavvy.spine.typed
 
-abstract class StaticResource(
+abstract class RootResource(
 	slug: String,
-	parent: Resource,
-) : Resource(slug, parent) {
+) : Resource(slug, parent = null) {
 
 	init {
 		// Static resources' slug must be a valid path segment, since they appear as-is in the URL

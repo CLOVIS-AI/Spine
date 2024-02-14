@@ -2,7 +2,7 @@ package opensavvy.spine.demo
 
 import opensavvy.spine.typed.*
 
-object Api : StaticResource("v1", parent = null) {
+object Api : RootResource("v1") {
 
 	object Users : StaticResource("users", Api) {
 
