@@ -11,13 +11,14 @@ import io.ktor.util.*
 import opensavvy.spine.typed.Endpoint
 import opensavvy.spine.typed.ParameterStorage
 import opensavvy.spine.typed.Parameters
+import opensavvy.spine.typed.fullSlug
 
 @KtorDsl
 inline fun <reified In : Any, reified Out : Any, reified Params : Parameters> Route.route(
 	endpoint: Endpoint<In, Out, Params>,
 	crossinline block: suspend TypedResponseScope<In, Params>.() -> Pair<HttpStatusCode, Out>,
 ) {
-	route(endpoint.path, endpoint.method) {
+	route(endpoint.fullSlug, endpoint.method) {
 		handle {
 			val paramData: ParameterStorage = HashMap()
 			for ((name, values) in call.parameters.entries())

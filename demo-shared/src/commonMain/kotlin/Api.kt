@@ -2,9 +2,9 @@ package opensavvy.spine.demo
 
 import opensavvy.spine.typed.*
 
-object Api : StaticResource("v1", parent = null) {
+object Api : RootResource("v1") {
 
-	object Users : StaticResource("users", Api) {
+	object Users : StaticResource<Api>("users", Api) {
 
 		val get by get()
 			.parameters(UserDto::Params)
@@ -16,7 +16,7 @@ object Api : StaticResource("v1", parent = null) {
 		val logIn by post("/token")
 			.request<UserDto.LogIn>()
 
-		object User : DynamicResource("user", Users) {
+		object User : DynamicResource<Users>("user", Users) {
 
 			val get by get()
 				.response<UserDto>()

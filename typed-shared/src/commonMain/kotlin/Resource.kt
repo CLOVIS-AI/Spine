@@ -2,7 +2,7 @@ package opensavvy.spine.typed
 
 import io.ktor.http.*
 
-abstract class Resource(
+sealed class Resource(
 	val slug: String,
 	val parent: Resource?,
 ) {
@@ -28,7 +28,7 @@ abstract class Resource(
 	private fun endpoint(method: HttpMethod, path: String? = null) = Endpoint(
 		resource = this@Resource,
 		method = method,
-		path = extendPath(path),
+		path = path?.let(Path::Segment),
 		requestType = Unit::class,
 		responseType = Unit::class,
 		buildParameters = { Parameters.Empty },
@@ -42,24 +42,27 @@ abstract class Resource(
 	protected fun head(path: String? = null) = endpoint(HttpMethod.Head, path)
 }
 
-val Resource.pathSegments: Sequence<String>
-	get() = sequence { generatePath(this@pathSegments) }
-
-private suspend fun SequenceScope<String>.generatePath(self: Resource) {
+private suspend fun SequenceScope<Resource>.hierarchy(self: Resource) {
 	val parent = self.parent
 
 	if (parent != null)
-		generatePath(parent)
+		hierarchy(parent)
 
-	yield(self.slug)
+	yield(self)
 }
 
-val Resource.path: String
-	get() = pathSegments.joinToString("/")
+val Resource.hierarchy: Sequence<Resource>
+	get() {
+		val self = this
+		return sequence { hierarchy(self) }
+	}
+
+val Resource.fullSlug: String
+	get() = hierarchy.map { it.slug }.joinToString("/")
 
 val Resource.endpoints: Sequence<AnyEndpoint>
 	get() = directEndpoints + children.flatMap { it.endpoints }
 
 internal fun Resource.extendPath(extension: String? = null) =
-	if (extension != null) "$path/$extension"
-	else path
+	if (extension != null) "$fullSlug/$extension"
+	else fullSlug

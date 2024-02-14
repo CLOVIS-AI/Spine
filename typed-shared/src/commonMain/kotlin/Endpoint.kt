@@ -4,19 +4,67 @@ import io.ktor.http.*
 import kotlin.reflect.KClass
 import kotlin.reflect.KProperty
 
-sealed interface AnyEndpoint
+/**
+ * A callable path in a [resource] for a given [method].
+ *
+ * The only implementation of this interface is [Endpoint].
+ * However, [Endpoint] regularly undergoes backwards-incompatible changes.
+ * For this reason, we discourage using [Endpoint] directly, and instead recommend using this interface instead.
+ *
+ * All instances of this interface must be immutable.
+ */
+sealed interface AnyEndpoint {
+	val resource: Resource
 
+	/**
+	 * The [HttpMethod] used when invoking this [Endpoint][AnyEndpoint].
+	 */
+	val method: HttpMethod
+
+	/**
+	 * Optional path extension from the [Resource] this endpoint is a part of.
+	 *
+	 * To access the real path of this endpoint, see [ResolvedEndpoint.path].
+	 */
+	val path: Path.Segment?
+
+	/**
+	 * The type of the body went the client sends data to the server.
+	 */
+	val requestType: KClass<*>
+
+	/**
+	 * The type of the body when the server responds to a client.
+	 */
+	val responseType: KClass<*>
+
+	/**
+	 * Constructor for query parameters.
+	 *
+	 * If no query parameters are used by this endpoint, this function returns [Parameters.Empty].
+	 */
+	val buildParameters: (ParameterStorage) -> Parameters
+}
+
+/**
+ * A callable path in a [resource] for a given [method].
+ *
+ * This class regularly undergoes backwards-incompatible changes.
+ * It is marked as deprecated to avoid users of this library accidentally using it and thus breaking in the future
+ * when this class changes.
+ * To avoid breakage, use [AnyEndpoint] instead in your code (however, you will lose access to the exact types used).
+ */
 @Deprecated(
 	message = "The Endpoint class may go through source-incompatible changes in the future, even in minor releases. Read its documentation to learn more.",
 	level = DeprecationLevel.HIDDEN,
 )
 class Endpoint<In : Any, Out : Any, Params : Parameters> internal constructor(
-	val resource: Resource,
-	val method: HttpMethod,
-	val path: String,
-	val requestType: KClass<In>,
-	val responseType: KClass<Out>,
-	val buildParameters: (ParameterStorage) -> Params,
+	override val resource: Resource,
+	override val method: HttpMethod,
+	override val path: Path.Segment?,
+	override val requestType: KClass<In>,
+	override val responseType: KClass<Out>,
+	override val buildParameters: (ParameterStorage) -> Params,
 ) : AnyEndpoint {
 
 	operator fun getValue(thisRef: Any?, property: KProperty<*>) = this
@@ -62,3 +110,8 @@ class Endpoint<In : Any, Out : Any, Params : Parameters> internal constructor(
 
 	// endregion
 }
+
+val AnyEndpoint.fullSlug: String
+	get() =
+		if (path == null) resource.fullSlug
+		else resource.fullSlug + "/" + path!!.text
