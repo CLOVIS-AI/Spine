@@ -1,8 +1,8 @@
 package opensavvy.spine.typed
 
-abstract class StaticResource(
+abstract class StaticResource<Parent : Resource>(
 	slug: String,
-	parent: Resource,
+	parent: Parent,
 ) : Resource(slug, parent) {
 
 	init {

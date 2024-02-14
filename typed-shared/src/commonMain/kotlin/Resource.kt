@@ -28,7 +28,7 @@ sealed class Resource(
 	private fun endpoint(method: HttpMethod, path: String? = null) = Endpoint(
 		resource = this@Resource,
 		method = method,
-		path = extendPath(path),
+		path = path?.let(Path::Segment),
 		requestType = Unit::class,
 		responseType = Unit::class,
 		buildParameters = { Parameters.Empty },

@@ -110,3 +110,8 @@ class Endpoint<In : Any, Out : Any, Params : Parameters> internal constructor(
 
 	// endregion
 }
+
+val AnyEndpoint.fullSlug: String
+	get() =
+		if (path == null) resource.fullSlug
+		else resource.fullSlug + "/" + path!!.text

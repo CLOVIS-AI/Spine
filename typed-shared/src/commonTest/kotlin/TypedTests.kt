@@ -7,5 +7,6 @@ class TypedTests : StringSpec({
 	preparedSuite {
 		paths()
 		parameters()
+		resolvedRouteTests()
 	}
 })
