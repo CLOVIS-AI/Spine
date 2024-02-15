@@ -4,7 +4,7 @@
 ktor = "2.3.8"                # https://github.com/ktorio/ktor/releases
 arrow = "1.2.1"               # https://github.com/arrow-kt/arrow/releases
 prepared = "0.6.0"            # https://gitlab.com/opensavvy/prepared/-/releases
-kotlinx-coroutines = "1.7.3"  # https://github.com/Kotlin/kotlinx.coroutines/releases
+kotlinx-coroutines = "1.8.0"  # https://github.com/Kotlin/kotlinx.coroutines/releases
 
 [plugins]
 
