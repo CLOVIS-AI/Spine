@@ -10,9 +10,9 @@ kotlin {
 		nodejs()
 	}
 	linuxX64()
-	// iosArm64()
-	// iosSimulatorArm64()
-	// iosX64()
+	iosArm64()
+	iosSimulatorArm64()
+	iosX64()
 
 	sourceSets.commonMain.dependencies {
 		api(projects.spineShared)
