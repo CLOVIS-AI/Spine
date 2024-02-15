@@ -7,12 +7,13 @@ import io.ktor.client.request.*
 import io.ktor.http.*
 import opensavvy.spine.typed.Endpoint
 import opensavvy.spine.typed.Parameters
+import opensavvy.spine.typed.Parameters.Empty.data
 import opensavvy.spine.typed.ResolvedEndpoint
 
 suspend inline fun <reified In : Any, reified Out : Any, reified Params : Parameters> HttpClient.request(
 	endpoint: ResolvedEndpoint<Endpoint<In, Out, Params>>,
 	input: In,
-	parameters: Params,
+	crossinline parameters: Params.() -> Unit,
 	contentType: ContentType = ContentType.Application.Json,
 	crossinline configure: HttpRequestBuilder.() -> Unit = {},
 ): SpineResponse<Out> {
@@ -20,7 +21,7 @@ suspend inline fun <reified In : Any, reified Out : Any, reified Params : Parame
 		method = endpoint.data.method
 		url(endpoint.path.toString())
 
-		for ((name, value) in parameters.data)
+		for ((name, value) in endpoint.data.buildParameters(HashMap()).apply(parameters).data)
 			parameter(name, value)
 
 		contentType(contentType)
@@ -37,7 +38,7 @@ suspend inline fun <reified In : Any, reified Out : Any, reified Params : Parame
 
 suspend inline fun <reified Out : Any, reified Params : Parameters> HttpClient.request(
 	endpoint: ResolvedEndpoint<Endpoint<Unit, Out, Params>>,
-	parameters: Params,
+	crossinline parameters: Params.() -> Unit,
 	contentType: ContentType = ContentType.Application.Json,
 	crossinline configure: HttpRequestBuilder.() -> Unit = {},
 ): SpineResponse<Out> = request(endpoint, Unit, parameters, contentType, configure)
@@ -47,10 +48,10 @@ suspend inline fun <reified In : Any, reified Out : Any> HttpClient.request(
 	input: In,
 	contentType: ContentType = ContentType.Application.Json,
 	crossinline configure: HttpRequestBuilder.() -> Unit = {},
-): SpineResponse<Out> = request(endpoint, input, Parameters.Empty, contentType, configure)
+): SpineResponse<Out> = request(endpoint, input, {}, contentType, configure)
 
 suspend inline fun <reified Out : Any> HttpClient.request(
 	endpoint: ResolvedEndpoint<Endpoint<Unit, Out, Parameters.Empty>>,
 	contentType: ContentType = ContentType.Application.Json,
 	crossinline configure: HttpRequestBuilder.() -> Unit = {},
-): SpineResponse<Out> = request(endpoint, Unit, Parameters.Empty, contentType, configure)
+): SpineResponse<Out> = request(endpoint, Unit, {}, contentType, configure)
