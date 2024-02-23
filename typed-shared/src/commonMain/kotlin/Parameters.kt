@@ -61,7 +61,7 @@ abstract class Parameters(
 	 * }
 	 * ```
 	 */
-	fun <T : Any> parameter(default: T) = UnnamedParameter(default)
+	protected fun <T : Any> parameter(default: T) = UnnamedParameter(default)
 
 	/**
 	 * Declares an optional parameter [name] of type [T].
@@ -76,7 +76,7 @@ abstract class Parameters(
 	 * }
 	 * ```
 	 */
-	fun <T : Any> parameter(name: String, default: T) = Parameter(name, default)
+	protected fun <T : Any> parameter(name: String, default: T) = Parameter(name, default)
 
 	/**
 	 * Declares a parameter of type [T].
@@ -94,7 +94,7 @@ abstract class Parameters(
 	 * }
 	 * ```
 	 */
-	fun <T : Any?> parameter() = UnnamedParameter<T>(null)
+	protected fun <T : Any?> parameter() = UnnamedParameter<T>(null)
 
 	/**
 	 * Declares a parameter [name] of type [T].
@@ -110,7 +110,7 @@ abstract class Parameters(
 	 * }
 	 * ```
 	 */
-	fun <T : Any?> parameter(name: String) = Parameter<T>(name, null)
+	protected fun <T : Any?> parameter(name: String) = Parameter<T>(name, null)
 
 	/**
 	 * Internal type used by the parameter declaration syntax.
