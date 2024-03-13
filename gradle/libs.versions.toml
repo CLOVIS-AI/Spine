@@ -1,17 +1,10 @@
 # List of dependencies of the project
 
 [versions]
-# https://github.com/ktorio/ktor/releases
-ktor = "2.3.7"
-
-# https://github.com/arrow-kt/arrow/releases
-arrow = "1.2.1"
-
-# https://gitlab.com/opensavvy/prepared/-/releases
-prepared = "0.6.0"
-
-# https://github.com/Kotlin/kotlinx.coroutines/releases
-kotlinx-coroutines = "1.7.3"
+ktor = "2.3.8"                # https://github.com/ktorio/ktor/releases
+arrow = "1.2.1"               # https://github.com/arrow-kt/arrow/releases
+prepared = "1.0.0-rc.2"       # https://gitlab.com/opensavvy/prepared/-/releases
+kotlinx-coroutines = "1.8.0"  # https://github.com/Kotlin/kotlinx.coroutines/releases
 
 [plugins]
 
@@ -29,6 +22,7 @@ arrow-core = { module = "io.arrow-kt:arrow-core", version.ref = "arrow" }
 
 prepared = { module = "dev.opensavvy.prepared:runner-kotest", version.ref = "prepared" }
 prepared-arrow = { module = "dev.opensavvy.prepared:compat-arrow", version.ref = "prepared" }
+prepared-ktor = { module = "dev.opensavvy.prepared:compat-ktor", version.ref = "prepared" }
 
 kotlinx-coroutines = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinx-coroutines" }
 

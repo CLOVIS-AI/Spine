@@ -1,6 +1,7 @@
 plugins {
 	alias(opensavvyConventions.plugins.base)
 	alias(opensavvyConventions.plugins.kotlin.library)
+	alias(opensavvyConventions.plugins.aligned.kotlinx.serialization)
 }
 
 kotlin {
@@ -17,6 +18,11 @@ kotlin {
 	sourceSets.commonTest.dependencies {
 		implementation(libs.prepared)
 		implementation(libs.prepared.arrow)
+		implementation(libs.prepared.ktor)
+		implementation(libs.ktor.server.contentNegotiation)
+		implementation(libs.ktor.client.contentNegotiation)
+		implementation(libs.ktor.kotlinxJson)
+		implementation(projects.typedClient)
 	}
 }
 

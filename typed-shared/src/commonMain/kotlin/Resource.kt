@@ -16,6 +16,10 @@ sealed class Resource(
 			@Suppress("LeakingThis")
 			parent._children += this
 		}
+
+		for (parent in hierarchy.filterNot { it == this }) {
+			require(parent.slug != this.slug) { "This resource cannot have the same slug as one of its parents: '$slug' is shared by $this and $parent" }
+		}
 	}
 
 	val children: Sequence<Resource>
