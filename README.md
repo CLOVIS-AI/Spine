@@ -2,8 +2,6 @@
 
 OpenSavvy Spine is a library to declare typesafe endpoints in code shared between your multiplatform clients and servers.
 
-## Typed Ktor
-
 Declare your endpoints and DTOs in your common code:
 
 ```kotlin
@@ -58,14 +56,6 @@ val user = User("Test", active = true)
 client.request(Api.Users.create, user).isSuccessful() shouldBe true
 client.request(Api.Users.list).bodyOrNull() shouldContain user
 ```
-
-## Safe Ktor
-
-Safe Ktor is a collection of DSLs to make error management in HTTP endpoints explicit, using Arrow.
-
-## Spine
-
-Spine is the combination of Typed and Safe Ktor.
 
 ## License
 
