@@ -54,19 +54,11 @@ include(
 	"gradle:templates:template-app",
 	"gradle:templates:template-lib",
 
-	"typed-shared",
-	"typed-server",
-	"typed-client",
+	"api",
 
-	"safe-shared",
-	"safe-server",
-	"safe-client",
+	"server",
+	"server-arrow",
 
-	"spine-shared",
-	"spine-server",
-	"spine-client",
-
-	"demo-shared",
-	"demo-server",
-	"demo-client",
+	"client",
+	"client-arrow",
 )
