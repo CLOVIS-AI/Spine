@@ -55,6 +55,10 @@ include(
 	"gradle:templates:template-lib",
 
 	"api",
+
 	"server",
+	"server-arrow",
+
 	"client",
+	"client-arrow",
 )
