@@ -1,10 +1,12 @@
 package opensavvy.spine.server
 
+import io.ktor.http.*
 import io.ktor.server.application.*
+import io.ktor.server.response.*
 import opensavvy.spine.api.DynamicResource
 import opensavvy.spine.api.Parameters
 
-interface TypedResponseScope<In : Any, Params : Parameters> {
+interface TypedResponseScope<In : Any, Out : Any, Params : Parameters> {
 	val call: ApplicationCall
 
 	val body: In
@@ -36,9 +38,17 @@ interface TypedResponseScope<In : Any, Params : Parameters> {
 			?: error("Could not find the required path parameter ${resource.slug} for resource $resource. This shouldn't be possible: Ktor shouldn't invoke this route if the path parameter is not provided by the client.")
 }
 
+suspend inline fun <reified Out : Any> TypedResponseScope<*, Out, *>.respond(body: Out, code: HttpStatusCode = if (body == Unit) HttpStatusCode.NoContent else HttpStatusCode.OK) {
+	call.respond(status = code, message = body)
+}
+
+suspend fun TypedResponseScope<*, Unit, *>.respond(code: HttpStatusCode = HttpStatusCode.NoContent) {
+	respond(Unit, code)
+}
+
 @PublishedApi
-internal class TypedResponseScopeImpl<In : Any, Params : Parameters>(
+internal class TypedResponseScopeImpl<In : Any, Out : Any, Params : Parameters>(
 	override val call: ApplicationCall,
 	override val body: In,
 	override val parameters: Params,
-) : TypedResponseScope<In, Params>
+) : TypedResponseScope<In, Out, Params>

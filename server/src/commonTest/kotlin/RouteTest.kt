@@ -3,10 +3,9 @@ package opensavvy.spine.typed.server
 import io.kotest.matchers.shouldBe
 import io.ktor.client.*
 import io.ktor.http.HttpStatusCode.Companion.Created
-import io.ktor.http.HttpStatusCode.Companion.NoContent
 import io.ktor.http.HttpStatusCode.Companion.NotFound
-import io.ktor.http.HttpStatusCode.Companion.OK
 import io.ktor.serialization.kotlinx.json.*
+import io.ktor.server.response.*
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.serialization.Serializable
@@ -16,6 +15,7 @@ import opensavvy.prepared.suite.*
 import opensavvy.spine.api.*
 import opensavvy.spine.client.bodyOrThrow
 import opensavvy.spine.client.request
+import opensavvy.spine.server.respond
 import opensavvy.spine.server.route
 import opensavvy.spine.typed.server.Routes.Users
 import opensavvy.spine.typed.server.Routes.Users.User
@@ -65,7 +65,9 @@ private val server by preparedServer {
 
 	routing {
 		route(Users.list) {
-			OK to dataLock.withLock("list") { data.filter { it.enabled || parameters.includeDisabled } }
+			respond(
+				dataLock.withLock("list") { data.filter { it.enabled || parameters.includeDisabled } }
+			)
 		}
 
 		route(Users.create) {
@@ -73,7 +75,7 @@ private val server by preparedServer {
 				require(data.none { it.id == body.id })
 				data += body
 			}
-			Created to Unit
+			respond(Created)
 		}
 
 		route(User.get) {
@@ -82,9 +84,9 @@ private val server by preparedServer {
 			val user = dataLock.withLock("get $id") { data.find { it.id == id } }
 
 			if (user != null) {
-				OK to user
+				respond(user)
 			} else {
-				NotFound to TODO()
+				call.respond(NotFound, Unit)
 			}
 		}
 
@@ -93,7 +95,7 @@ private val server by preparedServer {
 
 			dataLock.withLock("delete $id") { data.removeAll { it.id == id } }
 
-			NoContent to Unit
+			respond()
 		}
 	}
 }

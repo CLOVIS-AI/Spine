@@ -2,7 +2,6 @@
 
 package opensavvy.spine.server
 
-import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
@@ -12,11 +11,14 @@ import opensavvy.spine.api.Endpoint
 import opensavvy.spine.api.ParameterStorage
 import opensavvy.spine.api.Parameters
 import opensavvy.spine.api.fullSlug
+import kotlin.collections.component1
+import kotlin.collections.component2
+import kotlin.collections.set
 
 @KtorDsl
 inline fun <reified In : Any, reified Out : Any, reified Params : Parameters> Route.route(
 	endpoint: Endpoint<In, Out, Params>,
-	crossinline block: suspend TypedResponseScope<In, Params>.() -> Pair<HttpStatusCode, Out>,
+	crossinline block: suspend TypedResponseScope<In, Out, Params>.() -> Unit,
 ) {
 	route(endpoint.fullSlug, endpoint.method) {
 		handle {
@@ -34,10 +36,8 @@ inline fun <reified In : Any, reified Out : Any, reified Params : Parameters> Ro
 				else -> call.receive()
 			}
 
-			val scope = TypedResponseScopeImpl(call, body, params)
-			val (resultCode, result) = scope.block()
-
-			call.respond(resultCode, result)
+			val scope = TypedResponseScopeImpl<_, Out, _>(call, body, params)
+			scope.block()
 		}
 	}
 }
