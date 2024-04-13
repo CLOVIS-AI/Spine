@@ -58,6 +58,7 @@ include(
 
 	"server",
 	"server-arrow",
+	"server-arrow-independent",
 
 	"client",
 	"client-arrow",
