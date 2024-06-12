@@ -1,9 +1,9 @@
 # List of dependencies of the project
 
 [versions]
-prepared = "1.0.0-rc.2"       # https://gitlab.com/opensavvy/prepared/-/releases
 ktor = "2.3.11"               # https://github.com/ktorio/ktor/releases
 arrow = "1.2.4"               # https://github.com/arrow-kt/arrow/releases
+prepared = "1.2.0"            # https://gitlab.com/opensavvy/prepared/-/releases
 kotlinx-coroutines = "1.8.0"  # https://github.com/Kotlin/kotlinx.coroutines/releases
 
 [plugins]
