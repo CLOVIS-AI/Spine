@@ -16,6 +16,8 @@ kotlin {
 
 	sourceSets.commonMain.dependencies {
 		api(projects.client)
+		api(libs.arrow.core)
+		api(libs.kotlinx.coroutines)
 	}
 
 	sourceSets.commonTest.dependencies {
