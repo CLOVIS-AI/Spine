@@ -44,6 +44,12 @@ sealed interface AnyEndpoint {
 	 * If no query parameters are used by this endpoint, this function returns [Parameters.Empty].
 	 */
 	val buildParameters: (ParameterStorage) -> Parameters
+
+	sealed interface Builder {
+		fun <T : Any> request(kClass: KClass<T>): Builder
+		fun <T : Any> response(kClass: KClass<T>): Builder
+		fun <P : Parameters> parameters(build: (ParameterStorage) -> P): Builder
+	}
 }
 
 /**
@@ -55,7 +61,7 @@ sealed interface AnyEndpoint {
  * To avoid breakage, use [AnyEndpoint] instead in your code (however, you will lose access to the exact types used).
  */
 @Deprecated(
-	message = "The Endpoint class may go through source-incompatible changes in the future, even in minor releases. Read its documentation to learn more.",
+	message = "The Endpoint class may go through source-incompatible changes in the future, even in minor releases. Use AnyEndpoint instead.",
 	level = DeprecationLevel.HIDDEN,
 )
 class Endpoint<In : Any, Out : Any, Params : Parameters> internal constructor(
@@ -73,29 +79,34 @@ class Endpoint<In : Any, Out : Any, Params : Parameters> internal constructor(
 
 	// region Builder
 
-	internal fun asBuilder(onCreate: (AnyEndpoint) -> Unit) = Builder(this, onCreate)
-
 	@Suppress("DEPRECATION_ERROR")
-	class Builder<In : Any, Out : Any, Params : Parameters> internal constructor(
+	internal fun asBuilder(onCreate: (AnyEndpoint) -> Unit) = EndpointBuilder(this, onCreate)
+
+	@Deprecated(
+		message = "The EndpointBuilder class may go through source-incompatible changes in the future, even in minor releases. Use AnyEndpointBuilder instead.",
+		level = DeprecationLevel.HIDDEN,
+	)
+	@Suppress("DEPRECATION_ERROR")
+	class EndpointBuilder<In : Any, Out : Any, Params : Parameters> internal constructor(
 		private val endpoint: Endpoint<In, Out, Params>,
 		private val onCreate: (AnyEndpoint) -> Unit,
-	) {
+	) : AnyEndpoint.Builder {
 
-		fun <T : Any> request(kClass: KClass<T>) = Builder(
+		override fun <T : Any> request(kClass: KClass<T>) = EndpointBuilder(
 			Endpoint(endpoint.resource, endpoint.method, endpoint.path, kClass, endpoint.responseType, endpoint.buildParameters),
 			onCreate
 		)
 
 		inline fun <reified T : Any> request() = request(T::class)
 
-		fun <T : Any> response(kClass: KClass<T>) = Builder(
+		override fun <T : Any> response(kClass: KClass<T>) = EndpointBuilder(
 			Endpoint(endpoint.resource, endpoint.method, endpoint.path, endpoint.requestType, kClass, endpoint.buildParameters),
 			onCreate
 		)
 
 		inline fun <reified T : Any> response() = response(T::class)
 
-		fun <P : Parameters> parameters(build: (ParameterStorage) -> P) = Builder(
+		override fun <P : Parameters> parameters(build: (ParameterStorage) -> P) = EndpointBuilder(
 			Endpoint(endpoint.resource, endpoint.method, endpoint.path, endpoint.requestType, endpoint.responseType, build),
 			onCreate
 		)
