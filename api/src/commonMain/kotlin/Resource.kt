@@ -81,11 +81,207 @@ sealed class Resource(
 		buildParameters = { Parameters.Empty },
 	).asBuilder { _endpoints += it }
 
+	/**
+	 * Creates a [`GET`][HttpMethod.Get] HTTP endpoint in this resource.
+	 *
+	 * `GET` endpoints are used to access information. They should not modify the state of any resources.
+	 *
+	 * ### Properties
+	 *
+	 * - SHOULD NOT declare a [request][AnyEndpoint.Builder.request] body
+	 * - should declare a [response][AnyEndpoint.Builder.response] body
+	 * - should be [safe](https://developer.mozilla.org/en-US/docs/Glossary/Safe/HTTP)
+	 * - should be [idempotent](https://developer.mozilla.org/en-US/docs/Glossary/Idempotent)
+	 * - should be [cacheable](https://developer.mozilla.org/en-US/docs/Glossary/Cacheable)
+	 *
+	 * ### Example
+	 *
+	 * ```kotlin
+	 * object User : DynamicResource<Users>("user", parent = Users) {
+	 *
+	 *     // GET …/{user}
+	 *     val get by get()
+	 *         .response<UserDto>()
+	 *
+	 *     // GET …/{user}/favorites
+	 *     val favorites by get("favorites")
+	 *         .response<UserFavoriteDto>()
+	 *
+	 * }
+	 * ```
+	 *
+	 * To learn more about what can be customized on an endpoint, see [AnyEndpoint.Builder].
+	 *
+	 * Learn more about [`GET` (MDN)](https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods/GET).
+	 */
 	protected fun get(path: String? = null) = endpoint(HttpMethod.Get, path)
+
+	/**
+	 * Creates a [`POST`][HttpMethod.Post] HTTP endpoint in this resource.
+	 *
+	 * `POST` endpoints create new entities.
+	 *
+	 * Each new request must create a new entity, even if it is identical to a
+	 * prior request. If your endpoint only creates a new entity on the very first request, use [put] instead.
+	 *
+	 * ### Properties
+	 *
+	 * - should declare a [request][AnyEndpoint.Builder.request] body
+	 * - should declare a [response][AnyEndpoint.Builder.response] body
+	 *
+	 * Additionally, `POST` endpoints:
+	 * - are not [safe](https://developer.mozilla.org/en-US/docs/Glossary/Safe/HTTP), as they modify the server's state
+	 * - are not [idempotent](https://developer.mozilla.org/en-US/docs/Glossary/Idempotent), as the same request executed
+	 * twice will create two entities
+	 * - are not [cacheable](https://developer.mozilla.org/en-US/docs/Glossary/Cacheable), as a new entity must be created each time
+	 *
+	 * ### Example
+	 *
+	 * ```kotlin
+	 * object User : DynamicResource<Users>("user", parent = Users) {
+	 *
+	 *     // POST …/{user}
+	 *     val create by post()
+	 *         .request<UserCreationDto>()
+	 *         .response<UserDto>()
+	 *
+	 * }
+	 * ```
+	 *
+	 * To learn more about what can be customized on an endpoint, see [AnyEndpoint.Builder].
+	 *
+	 * Learn more about [`POST` (MDN)](https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods/POST).
+	 */
 	protected fun post(path: String? = null) = endpoint(HttpMethod.Post, path)
+
+	/**
+	 * Creates a [`PUT`][HttpMethod.Put] HTTP endpoint in this resource.
+	 *
+	 * `PUT` endpoints set the state of an entity.
+	 *
+	 * If the entity does not yet exist, it is created (upsert behavior).
+	 *
+	 * If the same request is executed multiple times, and the state of the entity hasn't changed in the meantime,
+	 * the second request should not do anything.
+	 * To instead create a new entity each time, use [post].
+	 *
+	 * ### Properties
+	 *
+	 * - should declare a [request][AnyEndpoint.Builder.request] body
+	 * - should declare a [response][AnyEndpoint.Builder.response] body
+	 *
+	 * Additionally, `PUT` endpoints:
+	 * - are not [safe](https://developer.mozilla.org/en-US/docs/Glossary/Safe/HTTP), as they modify the server's state
+	 * - are [idempotent](https://developer.mozilla.org/en-US/docs/Glossary/Idempotent), as the same request executed
+	 * twice will only create one entity
+	 * - are not [cacheable](https://developer.mozilla.org/en-US/docs/Glossary/Cacheable)
+	 *
+	 * ### Example
+	 *
+	 * ```kotlin
+	 * object User : DynamicResource<Users>("user", parent = Users) {
+	 *
+	 *     // PUT …/{user}
+	 *     val update by put()
+	 *         .response<UserDto>()
+	 *
+	 *     // PUT …/{user}/favorites
+	 *     val addFavorite by put("favorites")
+	 *         .request<UserFavoriteId>()
+	 *         .response<UserFavoriteDto>()
+	 *
+	 * }
+	 * ```
+	 *
+	 * To learn more about what can be customized on an endpoint, see [AnyEndpoint.Builder].
+	 *
+	 * Learn more about [`PUT` (MDN)](https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods/PUT).
+	 */
 	protected fun put(path: String? = null) = endpoint(HttpMethod.Put, path)
+
+	/**
+	 * Creates a [`PATCH`][HttpMethod.Patch] HTTP endpoint in this resource.
+	 *
+	 * `PATCH` endpoints partially set the state of an entity.
+	 *
+	 * Typically, a `PATCH` endpoint takes as input the same data as the matching `GET` outputs,
+	 * but with all fields optional, interpreting missing fields as "keep the existing value".
+	 *
+	 * ### Properties
+	 *
+	 * - should declare a [request][AnyEndpoint.Builder.request] body
+	 * - may or may not declare a [response][AnyEndpoint.Builder.response] body
+	 *
+	 * Additionally, `PATCH` endpoints:
+	 * - are not [safe](https://developer.mozilla.org/en-US/docs/Glossary/Safe/HTTP), as they modify the server's state
+	 * - are not [idempotent](https://developer.mozilla.org/en-US/docs/Glossary/Idempotent)
+	 * - are not [cacheable](https://developer.mozilla.org/en-US/docs/Glossary/Cacheable)
+	 *
+	 * ### Example
+	 *
+	 * ```kotlin
+	 * object User : DynamicResource<Users>("user", parent = Users) {
+	 *
+	 *     // PATCH …/{user}
+	 *     val update by patch()
+	 *         .response<UserDto>()
+	 *
+	 *     // PATCH …/{user}/favorites
+	 *     val favorites by patch("favorites")
+	 *         .request<UserFavoriteId>()
+	 *         .response<UserFavoriteDto>()
+	 *
+	 * }
+	 * ```
+	 *
+	 * To learn more about what can be customized on an endpoint, see [AnyEndpoint.Builder].
+	 *
+	 * Learn more about [`PATCH` (MDN)](https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods/PATCH).
+	 */
 	protected fun patch(path: String? = null) = endpoint(HttpMethod.Patch, path)
+
+	/**
+	 * Creates a [`DELETE`][HttpMethod.Delete] HTTP endpoint in this resource.
+	 *
+	 * `DELETE` endpoints delete an entity.
+	 *
+	 * ### Properties
+	 *
+	 * - may or may not declare a [request][AnyEndpoint.Builder.request] body
+	 * - may or may not declare a [response][AnyEndpoint.Builder.response] body
+	 *
+	 * Additionally, `DELETE` endpoints:
+	 * - are not [safe](https://developer.mozilla.org/en-US/docs/Glossary/Safe/HTTP), as they modify the server's state
+	 * - are [idempotent](https://developer.mozilla.org/en-US/docs/Glossary/Idempotent)
+	 * - are not [cacheable](https://developer.mozilla.org/en-US/docs/Glossary/Cacheable)
+	 *
+	 * ### Example
+	 *
+	 * ```kotlin
+	 * object User : DynamicResource<Users>("user", parent = Users) {
+	 *
+	 *     // DELETE …/{user}
+	 *     val delete by delete()
+	 *
+	 *     // DELETE …/{user}/favorites
+	 *     val favorites by delete("favorites")
+	 *
+	 * }
+	 * ```
+	 *
+	 * To learn more about what can be customized on an endpoint, see [AnyEndpoint.Builder].
+	 *
+	 * Learn more about [`DELETE` (MDN)](https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods/DELETE).
+	 */
 	protected fun delete(path: String? = null) = endpoint(HttpMethod.Delete, path)
+
+	/**
+	 * Creates a [`HEAD`][HttpMethod.Head] HTTP endpoint in this resource.
+	 *
+	 * To learn more about what can be customized on an endpoint, see [AnyEndpoint.Builder].
+	 *
+	 * Learn more about [`HEAD` (MDN)](https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods/HEAD).
+	 */
 	protected fun head(path: String? = null) = endpoint(HttpMethod.Head, path)
 }
 
