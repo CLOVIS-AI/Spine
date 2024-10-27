@@ -2,8 +2,8 @@ package opensavvy.spine.api
 
 abstract class DynamicResource<Parent : Resource>(
 	slug: String,
-	parent: Parent,
-) : Resource("{$slug}", parent) {
+	final override val parent: Parent,
+) : Resource("{$slug}") {
 
 	class Identified<Parent : Resource, Child : DynamicResource<Parent>> internal constructor(
 		val id: Path.Segment,

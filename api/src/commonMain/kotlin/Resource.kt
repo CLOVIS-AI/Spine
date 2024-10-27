@@ -4,17 +4,28 @@ import io.ktor.http.*
 
 sealed class Resource(
 	val slug: String,
-	val parent: Resource?,
 ) {
+
+	/**
+	 * The parent resource of this resource.
+	 *
+	 * Note that a [RootResource] has a `null` parent.
+	 * In all other cases, this attribute is non-`null`.
+	 *
+	 * **Implementation note.**
+	 * This attribute must be immutable and should always return the exact same instance.
+	 */
+	abstract val parent: Resource?
 
 	private val _children = ArrayList<Resource>()
 	private val _endpoints = ArrayList<AnyEndpoint>()
 
 	init {
-		if (parent != null) {
+		// Mark the parent
+		parent?.also {
 			// We do not access the object directly, so it is safe
 			@Suppress("LeakingThis")
-			parent._children += this
+			it._children += this
 		}
 
 		for (parent in hierarchy.filterNot { it == this }) {
