@@ -36,7 +36,7 @@ class ResolvedResource<R : Resource> internal constructor(
 }
 
 operator fun <Current : Resource, Child : StaticResource<Current>> ResolvedResource<Current>.div(child: Child): ResolvedResource<Child> = ResolvedResource(child, path + child.slug)
-operator fun <Current : Resource, Child : DynamicResource<Current>> ResolvedResource<Current>.div(child: DynamicResource.Identified<Current, Child>): ResolvedResource<Child> = ResolvedResource(child.self, path + child.id)
+operator fun <Current : Resource, Child : DynamicResource<Current>> ResolvedResource<Current>.div(child: DynamicResource.Identified<Current, Child>): ResolvedResource<Child> = ResolvedResource(child.resource, path + child.slug)
 
 operator fun <Root : RootResource, Child : StaticResource<Root>> Root.div(child: Child) = this.resolved / child
 operator fun <Root : RootResource, Child : DynamicResource<Root>> Root.div(child: DynamicResource.Identified<Root, Child>) = this.resolved / child
