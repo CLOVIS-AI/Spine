@@ -21,9 +21,9 @@ plugins {
 
 dependencies {
 	// List the 'library' projects
-	dokkatoo(projects.api)
-	dokkatoo(projects.server)
-	dokkatoo(projects.client)
+	dokka(projects.api)
+	dokka(projects.server)
+	dokka(projects.client)
 }
 
 // region Check the users of the project didn't forget to rename the group
