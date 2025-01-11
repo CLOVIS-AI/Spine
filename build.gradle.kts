@@ -23,7 +23,9 @@ dependencies {
 	// List the 'library' projects
 	dokka(projects.api)
 	dokka(projects.server)
+	dokka(projects.serverArrow)
 	dokka(projects.client)
+	dokka(projects.clientArrow)
 }
 
 // region Check the users of the project didn't forget to rename the group
