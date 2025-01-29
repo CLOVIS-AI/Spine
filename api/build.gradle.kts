@@ -25,7 +25,7 @@ kotlin {
 }
 
 library {
-	name.set("Multiplatform API schema declaration")
+	name.set("Multiplatform Ktor schema declaration")
 	description.set("Declare your Ktor API in code shared between your clients and servers")
 	homeUrl.set("https://gitlab.com/opensavvy/groundwork/spine")
 
@@ -33,4 +33,8 @@ library {
 		name.set("Apache 2.0")
 		url.set("https://www.apache.org/licenses/LICENSE-2.0.txt")
 	}
+}
+
+dokka.dokkaSourceSets.configureEach {
+	skipDeprecated.set(false)
 }
