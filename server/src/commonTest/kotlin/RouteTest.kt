@@ -1,6 +1,5 @@
 package opensavvy.spine.typed.server
 
-import io.kotest.matchers.shouldBe
 import io.ktor.client.*
 import io.ktor.http.HttpStatusCode.Companion.Created
 import io.ktor.http.HttpStatusCode.Companion.NotFound
@@ -11,8 +10,12 @@ import kotlinx.coroutines.sync.withLock
 import kotlinx.serialization.Serializable
 import opensavvy.prepared.compat.ktor.preparedClient
 import opensavvy.prepared.compat.ktor.preparedServer
-import opensavvy.prepared.suite.random.*
-import opensavvy.prepared.suite.*
+import opensavvy.prepared.suite.SuiteDsl
+import opensavvy.prepared.suite.map
+import opensavvy.prepared.suite.prepared
+import opensavvy.prepared.suite.random.nextInt
+import opensavvy.prepared.suite.random.random
+import opensavvy.prepared.suite.random.randomInt
 import opensavvy.spine.api.*
 import opensavvy.spine.client.bodyOrThrow
 import opensavvy.spine.client.request
@@ -129,11 +132,11 @@ fun SuiteDsl.routeTest() = suite("Route test") {
 	val userId by randomInt(0, 999).map { it.toString() }
 
 	test("Listing users when there are no users should return an empty list") {
-		client().listUsers(includeDisabled = false) shouldBe emptyList()
+		check(client().listUsers(includeDisabled = false) == emptyList<UserDto>())
 	}
 
 	test("Listing users when there are no users should return an empty list, even if we want to access disabled users") {
-		client().listUsers(includeDisabled = true) shouldBe emptyList()
+		check(client().listUsers(includeDisabled = true) == emptyList<UserDto>())
 	}
 
 	test("Creating a user") {
@@ -154,26 +157,26 @@ fun SuiteDsl.routeTest() = suite("Route test") {
 		enabledUser()
 		disabledUser()
 
-		client().listUsers(includeDisabled = false) shouldBe listOf(enabledUser())
+		check(client().listUsers(includeDisabled = false) == listOf(enabledUser()))
 	}
 
 	test("Listing all users") {
 		enabledUser()
 		disabledUser()
 
-		client().listUsers(includeDisabled = true) shouldBe listOf(enabledUser(), disabledUser())
+		check(client().listUsers(includeDisabled = true) == listOf(enabledUser(), disabledUser()))
 	}
 
 	test("Accessing the details of a user") {
 		val user = enabledUser()
 
-		client().getUser(user.id) shouldBe user
+		check(client().getUser(user.id) == user)
 	}
 
 	test("Deleting a user") {
 		val user = enabledUser()
 
 		client().deleteUser(user.id)
-		client().listUsers() shouldBe emptyList()
+		check(client().listUsers() == emptyList<UserDto>())
 	}
 }
