@@ -8,7 +8,7 @@ arrow = "2.1.2"               # https://github.com/arrow-kt/arrow/releases
 
 prepared = "2.0.4"            # https://gitlab.com/opensavvy/prepared/-/releases
 
-kotlinx-coroutines = "1.8.0"  # https://github.com/Kotlin/kotlinx.coroutines/releases
+kotlinx-coroutines = "1.10.2" # https://github.com/Kotlin/kotlinx.coroutines/releases
 
 [plugins]
 
