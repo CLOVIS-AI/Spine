@@ -1,6 +1,5 @@
 package opensavvy.spine.api
 
-import io.kotest.assertions.assertSoftly
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import opensavvy.prepared.suite.SuiteDsl
@@ -16,10 +15,8 @@ fun SuiteDsl.parameters() = suite("Endpoint parameters") {
 			archived = true
 		}
 
-		assertSoftly {
-			params.archived shouldBe true
-			shouldThrow<NoSuchElementException> { params.private }
-		}
+		check(params.archived)
+		shouldThrow<NoSuchElementException> { params.private }
 
 		params.data shouldBe mapOf(
 			"archived" to "true",
@@ -36,10 +33,8 @@ fun SuiteDsl.parameters() = suite("Endpoint parameters") {
 			archived = true
 		}
 
-		assertSoftly {
-			params.archived shouldBe true
-			params.private shouldBe null
-		}
+		check(params.archived == true)
+		check(params.private == null)
 
 		params.data shouldBe mapOf(
 			"archived" to "true",
@@ -56,8 +51,8 @@ fun SuiteDsl.parameters() = suite("Endpoint parameters") {
 			archived = true
 		}
 
-		params.archived shouldBe true
-		params.private shouldBe false
+		check(params.archived)
+		check(!params.private)
 
 		params.data shouldBe mapOf(
 			"archived" to "true",
@@ -100,23 +95,23 @@ fun SuiteDsl.parameters() = suite("Endpoint parameters") {
 			double = 10.0
 		}
 
-		params.string shouldBe "thing"
-		params.bool shouldBe true
+		check(params.string == "thing")
+		check(params.bool)
 
-		params.byte shouldBe 1
-		params.short shouldBe 2
-		params.int shouldBe 3
-		params.long shouldBe 4
+		check(params.byte == 1.toByte())
+		check(params.short == 2.toShort())
+		check(params.int == 3)
+		check(params.long == 4.toLong())
 
-		params.ubyte shouldBe 5u
-		params.ushort shouldBe 6u
-		params.uint shouldBe 7u
-		params.ulong shouldBe 8u
+		check(params.ubyte == 5.toUByte())
+		check(params.ushort == 6.toUShort())
+		check(params.uint == 7.toUInt())
+		check(params.ulong == 8.toULong())
 
-		params.float shouldBe 9f
-		params.double shouldBe 10.0
+		check(params.float == 9f)
+		check(params.double == 10.0)
 
-		params.data shouldBe mapOf(
+		check(params.data == mapOf(
 			"string" to "thing",
 			"bool" to "true",
 
@@ -132,6 +127,6 @@ fun SuiteDsl.parameters() = suite("Endpoint parameters") {
 
 			"float" to "${9.0}", // JVM: "9.0" — JS: "9"
 			"double" to "${10.0}",
-		)
+		))
 	}
 }
