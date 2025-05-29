@@ -122,9 +122,9 @@ private suspend fun HttpClient.listUsers(includeDisabled: Boolean = false) = req
 
 private suspend fun HttpClient.createUser(user: UserDto) = request(Routes / Users / Users.create, user).bodyOrThrow()
 
-private suspend fun HttpClient.getUser(id: String) = request(Routes / Users / Users.User(id) / User.get).bodyOrThrow()
+private suspend fun HttpClient.getUser(id: String) = request(Routes / Users / User(id) / User.get).bodyOrThrow()
 
-private suspend fun HttpClient.deleteUser(id: String) = request(Routes / Users / Users.User(id) / User.delete).bodyOrThrow()
+private suspend fun HttpClient.deleteUser(id: String) = request(Routes / Users / User(id) / User.delete).bodyOrThrow()
 
 // endregion
 
