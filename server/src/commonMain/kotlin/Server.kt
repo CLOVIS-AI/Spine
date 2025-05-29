@@ -7,13 +7,11 @@ import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.util.*
+import io.ktor.utils.io.*
 import opensavvy.spine.api.Endpoint
 import opensavvy.spine.api.ParameterStorage
 import opensavvy.spine.api.Parameters
 import opensavvy.spine.api.fullSlug
-import kotlin.collections.component1
-import kotlin.collections.component2
-import kotlin.collections.set
 
 @KtorDsl
 inline fun <reified In : Any, reified Out : Any, reified Params : Parameters> Route.route(
