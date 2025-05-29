@@ -310,6 +310,7 @@ private suspend fun SequenceScope<Resource>.hierarchy(self: Resource) {
  * - `Api.Users`: `[Api, Users]`
  * - `Api.Users.User`: `[Api, Users, User]`
  */
+@Suppress("KDocUnresolvedReference") // `[Api]` is not a link, it's just text
 val Resource.hierarchy: Sequence<Resource>
 	get() {
 		val self = this
