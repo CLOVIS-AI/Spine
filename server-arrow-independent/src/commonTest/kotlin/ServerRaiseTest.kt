@@ -1,12 +1,10 @@
 package opensavvy.spine.server.arrow.independent
 
 import arrow.core.raise.ensureNotNull
-import io.kotest.matchers.shouldBe
 import io.ktor.client.call.*
 import io.ktor.client.request.*
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
-import io.ktor.server.application.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import opensavvy.prepared.compat.ktor.preparedClient
@@ -48,7 +46,7 @@ class ServerRaiseTest : PreparedSpec({
 	}
 
 	test("Product of two integers") {
-		client().put("/product?first=6&second=2").body<Int>() shouldBe 12
+		check(client().put("/product?first=6&second=2").body<Int>() == 12)
 	}
 
 })

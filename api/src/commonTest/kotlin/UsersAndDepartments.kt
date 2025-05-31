@@ -14,6 +14,8 @@ object Root : RootResource("api") {
 		object User : DynamicResource<Users>("user", Users) {
 
 			val get by get()
+			val head by head()
+			val update by patch()
 			val preferences by get("preferences")
 
 			object Departments : StaticResource<User>("departments", User) {

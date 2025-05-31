@@ -1,18 +1,16 @@
 package opensavvy.spine.api
 
 import io.kotest.assertions.throwables.shouldThrow
-import io.kotest.assertions.withClue
-import io.kotest.matchers.shouldBe
 import opensavvy.prepared.suite.SuiteDsl
 
-infix fun Addressed.shouldBeAddressedBy(path: String) = withClue("Expecting $this to be addressed by $path") {
-	this.path.toString() shouldBe path
+infix fun Addressed.shouldBeAddressedBy(expectedPath: String) {
+	check(this.path.toString() == expectedPath)
 }
 
 fun SuiteDsl.paths() = suite("Paths") {
 	test("Valid segments") {
-		Path.Segment("test").text shouldBe "test"
-		Path.Segment("test-other2").text shouldBe "test-other2"
+		check(Path.Segment("test").text == "test")
+		check(Path.Segment("test-other2").text == "test-other2")
 	}
 
 	test("A segment shouldn't be empty") {

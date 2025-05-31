@@ -112,6 +112,22 @@ abstract class Parameters(
 	 */
 	protected fun <T : Any?> parameter(name: String) = Parameter<T>(name, null)
 
+	override fun equals(other: Any?): Boolean {
+		if (this === other) return true
+		if (other == null || this::class != other::class) return false
+
+		other as Parameters
+
+		return data == other.data
+	}
+
+	override fun hashCode(): Int {
+		return data.hashCode()
+	}
+
+	override fun toString(): String =
+		"${this::class.toString().removePrefix("class ")}$data"
+
 	/**
 	 * Internal type used by the parameter declaration syntax.
 	 *
