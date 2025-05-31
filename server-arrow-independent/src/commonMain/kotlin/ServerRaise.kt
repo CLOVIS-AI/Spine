@@ -2,10 +2,9 @@ package opensavvy.spine.server.arrow.independent
 
 import arrow.core.raise.Raise
 import arrow.core.raise.recover
-import io.ktor.server.application.*
 import io.ktor.server.response.*
-import io.ktor.util.*
-import io.ktor.util.pipeline.*
+import io.ktor.server.routing.*
+import io.ktor.utils.io.*
 
 /**
  * Allows to use the [Raise] DSL to implement a route.
@@ -26,7 +25,7 @@ import io.ktor.util.pipeline.*
  * ```
  */
 @KtorDsl
-suspend inline fun PipelineContext<Unit, ApplicationCall>.raise(block: Raise<HttpFailure>.() -> Unit) {
+suspend inline fun RoutingContext.raise(block: Raise<HttpFailure>.() -> Unit) {
 	recover(block) {
 		call.respond(status = it.code, message = it.body, messageType = it.type)
 	}
