@@ -15,9 +15,9 @@ kotlin {
 	}
 
 	sourceSets.commonTest.dependencies {
-		implementation(libs.prepared)
-		implementation(libs.prepared.arrow)
-		implementation(libs.prepared.ktor)
+		implementation(libsCommon.opensavvy.prepared.kotest)
+		implementation(libsCommon.opensavvy.prepared.arrow)
+		implementation(libsCommon.opensavvy.prepared.ktor)
 		implementation(libs.ktor.server.contentNegotiation)
 		implementation(libs.ktor.client.contentNegotiation)
 		implementation(libs.ktor.kotlinxJson)
