@@ -10,14 +10,18 @@ import kotlinx.serialization.Serializable
 import opensavvy.prepared.compat.ktor.preparedClient
 import opensavvy.prepared.compat.ktor.preparedServer
 import opensavvy.prepared.suite.SuiteDsl
+import opensavvy.prepared.suite.assertions.checkThrows
 import opensavvy.prepared.suite.map
 import opensavvy.prepared.suite.prepared
 import opensavvy.prepared.suite.random.nextInt
 import opensavvy.prepared.suite.random.random
 import opensavvy.prepared.suite.random.randomInt
 import opensavvy.spine.api.*
+import opensavvy.spine.api.Parameters
 import opensavvy.spine.client.bodyOrThrow
+import opensavvy.spine.client.handle
 import opensavvy.spine.client.request
+import opensavvy.spine.server.fail
 import opensavvy.spine.server.respond
 import opensavvy.spine.server.route
 import opensavvy.spine.typed.server.Routes.Users
@@ -94,7 +98,9 @@ private val server by preparedServer {
 
 		route(Users.create) {
 			dataLock.withLock("create $body") {
-				require(data.none { it.id == body.id })
+				if (data.any { it.id == body.id }) {
+					fail(AlreadyExists(body.id))
+				}
 				data += body
 			}
 			respond(Created)
@@ -105,11 +111,11 @@ private val server by preparedServer {
 
 			val user = dataLock.withLock("get $id") { data.find { it.id == id } }
 
-			if (user != null) {
-				respond(user)
-			} else {
-				call.respond(NotFound, Unit)
+			if (user == null) {
+				fail(NotFound(id))
 			}
+
+			respond(user)
 		}
 
 		route(User.delete) {
