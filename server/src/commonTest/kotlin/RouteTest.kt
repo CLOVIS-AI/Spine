@@ -144,11 +144,21 @@ private suspend fun HttpClient.listUsers(includeDisabled: Boolean = false) = req
 	},
 ).bodyOrThrow()
 
-private suspend fun HttpClient.createUser(user: UserDto) = request(Routes / Users / Users.create, user).bodyOrThrow()
+private suspend fun HttpClient.createUser(user: UserDto) = request(Routes / Users / Users.create, user).handle(
+	handle1 = { throw RuntimeException("Could not find user ${it.id}") },
+	transform = { },
+)
 
-private suspend fun HttpClient.getUser(id: String) = request(Routes / Users / User(id) / User.get).bodyOrThrow()
+private suspend fun HttpClient.getUser(id: String) = request(Routes / Users / User(id) / User.get).handle(
+	handle1 = { null },
+	transform = { it },
+)
 
-private suspend fun HttpClient.deleteUser(id: String) = request(Routes / Users / User(id) / User.delete).bodyOrThrow()
+private suspend fun HttpClient.deleteUser(id: String) = request(Routes / Users / User(id) / User.delete).handle(
+	handle1 = { throw RuntimeException("Could not find user ${it.id}") },
+	handle2 = { throw RuntimeException("Deleting a user is not allowed") },
+	transform = { }
+)
 
 // endregion
 
@@ -165,6 +175,15 @@ fun SuiteDsl.routeTest() = suite("Route test") {
 
 	test("Creating a user") {
 		client().createUser(UserDto(userId(), "test", true))
+	}
+
+	test("Cannot create two users with the same ID") {
+		client().createUser(UserDto(userId(), "test", true))
+
+		val e = checkThrows<RuntimeException> {
+			client().createUser(UserDto(userId(), "test", true))
+		}
+		check(e.message == "Could not find user ${userId()}")
 	}
 
 	val enabledUser by prepared {
