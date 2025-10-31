@@ -1,10 +1,9 @@
 package opensavvy.spine.typed.server
 
 import io.ktor.client.*
+import io.ktor.http.*
 import io.ktor.http.HttpStatusCode.Companion.Created
-import io.ktor.http.HttpStatusCode.Companion.NotFound
 import io.ktor.serialization.kotlinx.json.*
-import io.ktor.server.response.*
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.serialization.Serializable
@@ -31,6 +30,21 @@ import io.ktor.server.plugins.contentnegotiation.ContentNegotiation as ServerCon
 @Serializable
 private data class UserDto(val id: String, val name: String, val enabled: Boolean)
 
+@Serializable
+private data class NotFound(val id: String) {
+
+	companion object : FailureCompanion<NotFound>(HttpStatusCode.NotFound)
+}
+
+@Serializable
+private data class AlreadyExists(val id: String)
+
+@Serializable
+private data class NotAllowed(val reason: String) {
+
+	companion object : FailureCompanion<NotAllowed>(HttpStatusCode.Forbidden)
+}
+
 private class UserSearchParams(data: ParameterStorage) : Parameters(data) {
 	var includeDisabled by parameter(false)
 }
@@ -45,13 +59,17 @@ private object Routes : RootResource("routes") {
 
 		val create by post()
 			.request<UserDto>()
+			.failure<AlreadyExists>(HttpStatusCode.Conflict)
 
 		object User : DynamicResource<Users>("user", Users) {
 
 			val get by get()
 				.response<UserDto>()
+				.failure(NotFound)
 
 			val delete by delete()
+				.failure(NotFound)
+				.failure(NotAllowed)
 		}
 	}
 }
