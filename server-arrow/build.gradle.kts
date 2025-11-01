@@ -10,6 +10,7 @@ kotlin {
 
 	sourceSets.commonMain.dependencies {
 		api(projects.server)
+		api(projects.serverArrowIndependent)
 	}
 
 	sourceSets.commonTest.dependencies {
@@ -20,6 +21,12 @@ kotlin {
 		implementation(libs.ktor.client.contentNegotiation)
 		implementation(libs.ktor.kotlinxJson)
 		implementation(projects.clientArrow)
+	}
+
+	sourceSets.all {
+		languageSettings {
+			enableLanguageFeature("ContextParameters")
+		}
 	}
 }
 
