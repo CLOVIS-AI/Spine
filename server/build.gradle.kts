@@ -23,6 +23,15 @@ kotlin {
 		implementation(libs.ktor.client.contentNegotiation)
 		implementation(libs.ktor.kotlinxJson)
 		implementation(projects.client)
+		implementation(projects.clientArrow)
+	}
+
+	sourceSets.all {
+		if (name.endsWith("Test")) {
+			languageSettings {
+				enableLanguageFeature("ContextParameters")
+			}
+		}
 	}
 }
 

@@ -24,6 +24,12 @@ kotlin {
 		implementation(libsCommon.opensavvy.prepared.kotest)
 		implementation(libsCommon.opensavvy.prepared.arrow)
 	}
+
+	sourceSets.all {
+		languageSettings {
+			enableLanguageFeature("ContextParameters")
+		}
+	}
 }
 
 library {

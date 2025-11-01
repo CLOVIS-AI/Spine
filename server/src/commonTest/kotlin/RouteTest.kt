@@ -1,5 +1,9 @@
+@file:OptIn(ExperimentalTraceApi::class)
+
 package opensavvy.spine.typed.server
 
+import arrow.core.raise.ExperimentalTraceApi
+import arrow.core.raise.Raise
 import io.ktor.client.*
 import io.ktor.http.*
 import io.ktor.http.HttpStatusCode.Companion.Created
@@ -7,6 +11,7 @@ import io.ktor.serialization.kotlinx.json.*
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.serialization.Serializable
+import opensavvy.prepared.compat.arrow.core.failOnRaise
 import opensavvy.prepared.compat.ktor.preparedClient
 import opensavvy.prepared.compat.ktor.preparedServer
 import opensavvy.prepared.suite.SuiteDsl
@@ -18,6 +23,7 @@ import opensavvy.prepared.suite.random.random
 import opensavvy.prepared.suite.random.randomInt
 import opensavvy.spine.api.*
 import opensavvy.spine.api.Parameters
+import opensavvy.spine.client.arrow.body
 import opensavvy.spine.client.bodyOrThrow
 import opensavvy.spine.client.handle
 import opensavvy.spine.client.request
@@ -154,11 +160,8 @@ private suspend fun HttpClient.getUser(id: String) = request(Routes / Users / Us
 	transform = { it },
 )
 
-private suspend fun HttpClient.deleteUser(id: String) = request(Routes / Users / User(id) / User.delete).handle(
-	handle1 = { throw RuntimeException("Could not find user ${it.id}") },
-	handle2 = { throw RuntimeException("Deleting a user is not allowed") },
-	transform = { }
-)
+context(_: Raise<NotFound>, _: Raise<NotAllowed>)
+private suspend fun HttpClient.deleteUser(id: String) = request(Routes / Users / User(id) / User.delete).body()
 
 // endregion
 
@@ -219,7 +222,7 @@ fun SuiteDsl.routeTest() = suite("Route test") {
 	test("Deleting a user") {
 		val user = enabledUser()
 
-		client().deleteUser(user.id)
+		failOnRaise { client().deleteUser(user.id) }
 		check(client().listUsers() == emptyList<UserDto>())
 	}
 }
