@@ -131,6 +131,13 @@ sealed interface AnyEndpoint {
 	val buildParameters: ParameterConstructor<Parameters>
 
 	/**
+	 * The descriptor of the possible errors that this endpoint can return.
+	 *
+	 * To learn more, visit [FailureSpec].
+	 */
+	val failureSpec: FailureSpec
+
+	/**
 	 * The super-type for the endpoint declaration syntax.
 	 *
 	 * See [AnyEndpoint] to learn more about the syntax.
@@ -208,6 +215,71 @@ sealed interface AnyEndpoint {
 		 * ```
 		 */
 		fun <P : Parameters> parameters(build: ParameterConstructor<P>): Builder
+
+		/**
+		 * Declares a possible failure that can happen when calling this endpoint.
+		 *
+		 * When the failure is thrown, the request ends with the HTTP status code described in the failure: [FailureSpec.ByCode.statusCode].
+		 *
+		 * Under the hood, this method uses [Ktor's content negotiation](https://ktor.io/docs/serialization.html) features.
+		 * Therefore, all types that would be valid with content negotiation can be used with this library.
+		 * Note that you may need to perform some configuration on the Ktor side before using some types, see the
+		 * official documentation for instructions.
+		 *
+		 * **Multiple different failures may be declared, though some failures may or may not support that.**
+		 * See [FailureSpec] to learn more about combining failures.
+		 *
+		 * ### Example
+		 *
+		 * ```kotlin
+		 * @Serializable
+		 * data class UserAlreadyExists(
+		 *     val id: String,
+		 * ) {
+		 *
+		 *     companion object : FailureCompanion<UserAlreadyExists>(HttpStatusCode.Conflict)
+		 * }
+		 *
+		 * val create by post()
+		 *     .request<UserCreationDto>()
+		 *     .response<UserDto>()
+		 *     .failure(UserAlreadyExists)
+		 * ```
+		 *
+		 * @see FailureSpec Learn more about failures.
+		 * @see FailureCompanion Learn more about binding an error to a type.
+		 */
+		fun <S : FailureSpec> failure(spec: S): Builder
+
+		/**
+		 * Declares a possible failure that can happen when calling this endpoint.
+		 *
+		 * When the failure is thrown, the request ends with the provided HTTP [statusCode].
+		 *
+		 * Under the hood, this method uses [Ktor's content negotiation](https://ktor.io/docs/serialization.html) features.
+		 * Therefore, all types that would be valid with content negotiation can be used with this library.
+		 * Note that you may need to perform some configuration on the Ktor side before using some types, see the
+		 * official documentation for instructions.
+		 *
+		 * **Multiple different failures may be declared by calling this function multiple times,
+		 * but no two calls should have the same [statusCode].**
+		 * See [FailureSpec] to learn more about combining failures.
+		 *
+		 * ### Example
+		 *
+		 * ```kotlin
+		 * @Serializable
+		 * data class UserAlreadyExists(val id: String)
+		 *
+		 * val create by post()
+		 *     .request<UserCreationDto>()
+		 *     .response<UserDto>()
+		 *     .failure<UserAlreadyExists>(HttpStatusCode.Conflict)
+		 * ```
+		 *
+		 * @see FailureSpec Learn more about failures.
+		 */
+		fun <F> failure(statusCode: HttpStatusCode): Builder
 	}
 }
 
@@ -223,12 +295,13 @@ sealed interface AnyEndpoint {
 	message = "The Endpoint class may go through source-incompatible changes in the future, even in minor releases. Use AnyEndpoint instead.",
 	level = DeprecationLevel.HIDDEN,
 )
-class Endpoint<In : Any, Out : Any, Params : Parameters> internal constructor(
+class Endpoint<In : Any, Out : Any, Failure : FailureSpec, Params : Parameters> internal constructor(
 	override val resource: Resource,
 	override val method: HttpMethod,
 	override val path: Path.Segment?,
 	override val requestType: KClass<In>,
 	override val responseType: KClass<Out>,
+	override val failureSpec: Failure,
 	override val buildParameters: ParameterConstructor<Params>,
 ) : AnyEndpoint {
 
@@ -246,31 +319,39 @@ class Endpoint<In : Any, Out : Any, Params : Parameters> internal constructor(
 		level = DeprecationLevel.HIDDEN,
 	)
 	@Suppress("DEPRECATION_ERROR")
-	class EndpointBuilder<In : Any, Out : Any, Params : Parameters> internal constructor(
-		private val endpoint: Endpoint<In, Out, Params>,
+	class EndpointBuilder<In : Any, Out : Any, Failure : FailureSpec,  Params : Parameters> internal constructor(
+		private val endpoint: Endpoint<In, Out, Failure, Params>,
 		private val onCreate: (AnyEndpoint) -> Unit,
 	) : AnyEndpoint.Builder {
 
 		override fun <T : Any> request(kClass: KClass<T>) = EndpointBuilder(
-			Endpoint(endpoint.resource, endpoint.method, endpoint.path, kClass, endpoint.responseType, endpoint.buildParameters),
+			Endpoint(endpoint.resource, endpoint.method, endpoint.path, kClass, endpoint.responseType, endpoint.failureSpec, endpoint.buildParameters),
 			onCreate
 		)
 
 		inline fun <reified T : Any> request() = request(T::class)
 
 		override fun <T : Any> response(kClass: KClass<T>) = EndpointBuilder(
-			Endpoint(endpoint.resource, endpoint.method, endpoint.path, endpoint.requestType, kClass, endpoint.buildParameters),
+			Endpoint(endpoint.resource, endpoint.method, endpoint.path, endpoint.requestType, kClass, endpoint.failureSpec, endpoint.buildParameters),
 			onCreate
 		)
 
 		inline fun <reified T : Any> response() = response(T::class)
 
 		override fun <P : Parameters> parameters(build: (ParameterStorage) -> P) = EndpointBuilder(
-			Endpoint(endpoint.resource, endpoint.method, endpoint.path, endpoint.requestType, endpoint.responseType, build),
+			Endpoint(endpoint.resource, endpoint.method, endpoint.path, endpoint.requestType, endpoint.responseType, endpoint.failureSpec, build),
 			onCreate
 		)
 
-		fun create(): Endpoint<In, Out, Params> {
+		override fun <S : FailureSpec> failure(spec: S) = EndpointBuilder(
+			Endpoint(endpoint.resource, endpoint.method, endpoint.path, endpoint.requestType, endpoint.responseType, endpoint.failureSpec + spec, endpoint.buildParameters),
+			onCreate
+		)
+
+		override fun <F> failure(statusCode: HttpStatusCode) =
+			failure<FailureSpec.ByCode<F>>(FailureByCodeImpl(statusCode))
+
+		fun create(): Endpoint<In, Out, Failure, Params> {
 			onCreate(endpoint)
 			return endpoint
 		}

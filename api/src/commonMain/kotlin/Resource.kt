@@ -79,6 +79,7 @@ sealed class Resource(
 		requestType = Unit::class,
 		responseType = Unit::class,
 		buildParameters = { Parameters.Empty },
+		failureSpec = FailureSpec.Never,
 	).asBuilder { _endpoints += it }
 
 	/**
