@@ -28,6 +28,7 @@ dependencies {
 	library(projects.api)
 	library(projects.server)
 	library(projects.serverArrow)
+	library(projects.serverArrowIndependent)
 	library(projects.client)
 	library(projects.clientArrow)
 }

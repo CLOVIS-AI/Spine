@@ -5,5 +5,10 @@ plugins {
 
 dependencies {
 	// List the 'library' projects
-	// dokka(projects.core)
+	dokka(projects.api)
+	dokka(projects.server)
+	dokka(projects.serverArrow)
+	dokka(projects.serverArrowIndependent)
+	dokka(projects.client)
+	dokka(projects.clientArrow)
 }
