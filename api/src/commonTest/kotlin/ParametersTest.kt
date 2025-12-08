@@ -1,8 +1,7 @@
 package opensavvy.spine.api
 
-import io.kotest.assertions.throwables.shouldThrow
-import io.kotest.matchers.shouldBe
 import opensavvy.prepared.suite.SuiteDsl
+import opensavvy.prepared.suite.assertions.checkThrows
 
 fun SuiteDsl.parameters() = suite("Endpoint parameters") {
 	test("Mandatory parameters") {
@@ -16,11 +15,9 @@ fun SuiteDsl.parameters() = suite("Endpoint parameters") {
 		}
 
 		check(params.archived)
-		shouldThrow<NoSuchElementException> { params.private }
+		checkThrows<NoSuchElementException> { params.private }
 
-		params.data shouldBe mapOf(
-			"archived" to "true",
-		)
+		check(params.data == mapOf("archived" to "true"))
 	}
 
 	test("Optional parameters") {
@@ -36,9 +33,7 @@ fun SuiteDsl.parameters() = suite("Endpoint parameters") {
 		check(params.archived == true)
 		check(params.private == null)
 
-		params.data shouldBe mapOf(
-			"archived" to "true",
-		)
+		check(params.data == mapOf("archived" to "true"))
 	}
 
 	test("Optional parameters with default values") {
@@ -54,9 +49,7 @@ fun SuiteDsl.parameters() = suite("Endpoint parameters") {
 		check(params.archived)
 		check(!params.private)
 
-		params.data shouldBe mapOf(
-			"archived" to "true",
-		)
+		check(params.data == mapOf("archived" to "true"))
 	}
 
 	test("Supported types are mapped correctly") {

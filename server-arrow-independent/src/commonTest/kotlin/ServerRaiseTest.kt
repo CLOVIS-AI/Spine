@@ -9,11 +9,11 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import opensavvy.prepared.compat.ktor.preparedClient
 import opensavvy.prepared.compat.ktor.preparedServer
-import opensavvy.prepared.runner.kotest.PreparedSpec
+import opensavvy.prepared.runner.testballoon.preparedSuite
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation as ClientContentNegotiation
 import io.ktor.server.plugins.contentnegotiation.ContentNegotiation as ServerContentNegotiation
 
-class ServerRaiseTest : PreparedSpec({
+val ServerRaiseTest by preparedSuite {
 
 	val server by preparedServer {
 		install(ServerContentNegotiation) {
@@ -49,4 +49,4 @@ class ServerRaiseTest : PreparedSpec({
 		check(client().put("/product?first=6&second=2").body<Int>() == 12)
 	}
 
-})
+}

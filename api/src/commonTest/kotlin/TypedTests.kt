@@ -1,12 +1,9 @@
 package opensavvy.spine.api
 
-import io.kotest.core.spec.style.StringSpec
-import opensavvy.prepared.runner.kotest.preparedSuite
+import opensavvy.prepared.runner.testballoon.preparedSuite
 
-class TypedTests : StringSpec({
-	preparedSuite {
-		paths()
-		parameters()
-		resolvedRouteTests()
-	}
-})
+val TypedTests by preparedSuite {
+	paths()
+	parameters()
+	resolvedRouteTests()
+}

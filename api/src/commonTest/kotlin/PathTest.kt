@@ -1,7 +1,7 @@
 package opensavvy.spine.api
 
-import io.kotest.assertions.throwables.shouldThrow
 import opensavvy.prepared.suite.SuiteDsl
+import opensavvy.prepared.suite.assertions.checkThrows
 
 infix fun Addressed.shouldBeAddressedBy(expectedPath: String) {
 	check(this.path.toString() == expectedPath)
@@ -14,11 +14,11 @@ fun SuiteDsl.paths() = suite("Paths") {
 	}
 
 	test("A segment shouldn't be empty") {
-		shouldThrow<IllegalArgumentException> { Path.Segment("") }
+		checkThrows<IllegalArgumentException> { Path.Segment("") }
 	}
 
 	test("A segment shouldn't contain one of the forbidden characters") {
-		shouldThrow<IllegalArgumentException> { Path.Segment("other/test") }
+		checkThrows<IllegalArgumentException> { Path.Segment("other/test") }
 	}
 
 	test("Valid paths") {
