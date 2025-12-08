@@ -1,10 +1,7 @@
 package opensavvy.spine.typed.server
 
-import io.kotest.core.spec.style.StringSpec
-import opensavvy.prepared.runner.kotest.preparedSuite
+import opensavvy.prepared.runner.testballoon.preparedSuite
 
-class ServerTests : StringSpec({
-	preparedSuite {
-		routeTest()
-	}
-})
+val ServerTests by preparedSuite {
+	routeTest()
+}

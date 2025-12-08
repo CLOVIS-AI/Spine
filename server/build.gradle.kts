@@ -2,6 +2,7 @@ plugins {
 	alias(opensavvyConventions.plugins.base)
 	alias(opensavvyConventions.plugins.kotlin.library)
 	alias(libsCommon.plugins.kotlinx.serialization)
+	alias(libsCommon.plugins.testBalloon)
 }
 
 kotlin {
@@ -16,9 +17,10 @@ kotlin {
 	}
 
 	sourceSets.commonTest.dependencies {
-		implementation(libsCommon.opensavvy.prepared.kotest)
+		implementation(libsCommon.opensavvy.prepared.testBalloon)
 		implementation(libsCommon.opensavvy.prepared.arrow)
 		implementation(libsCommon.opensavvy.prepared.ktor)
+		implementation(libsCommon.kotlin.test)
 		implementation(libs.ktor.server.contentNegotiation)
 		implementation(libs.ktor.client.contentNegotiation)
 		implementation(libs.ktor.kotlinxJson)
