@@ -1,7 +1,7 @@
-site_name: OpenSavvy Playground
+site_name: OpenSavvy Spine
 site_author: OpenSavvy and contributors
 site_description: >
-  Project template with CI/CD and IDE configuration.
+  Share your Ktor endpoints between client and server
 
 theme:
   name: material
@@ -106,10 +106,6 @@ nav:
   - Home: index.md
 
   - Getting started: []
-
-  - Module1: []
-
-  - Module2: []
 
 # !!! EMBEDDED DOKKA START, DO NOT COMMIT !!! #
 # !!! EMBEDDED DOKKA END, DO NOT COMMIT !!! #
