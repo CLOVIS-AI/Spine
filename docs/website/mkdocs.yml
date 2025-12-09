@@ -105,7 +105,14 @@ use_directory_urls: false
 nav:
   - Home: index.md
 
-  - Getting started: []
+  - Features:
+      - Getting started: setup.md
+      - Compare with Ktor Resources: comparison-ktor-resources.md
+      - Resources: resources.md
+      - Endpoints: endpoints.md
+      - Query parameters: parameters.md
+      - Failures: failures.md
+      - Failures with Arrow: failures-arrow.md
 
 # !!! EMBEDDED DOKKA START, DO NOT COMMIT !!! #
 # !!! EMBEDDED DOKKA END, DO NOT COMMIT !!! #

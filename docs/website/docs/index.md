@@ -221,11 +221,11 @@ Because endpoints are just regular Kotlin variables, you can easily navigate fro
 
 Interested? Read on!
 
-- **Configure Spine in your own project**
-- **More about the different kinds of resources**
-- **More about declaring endpoints**
-- **More about query parameters**
-- **More about failures**
-- **More about failures with Arrow**
+- [**Configure Spine in your own project**](setup.md)
+- [**More about the different kinds of resources**](resources.md)
+- [**More about declaring endpoints**](endpoints.md)
+- [**More about query parameters**](parameters.md)
+- [**More about failures**](failures.md)
+- [**More about failures with Arrow**](failures-arrow.md)
 
 Don't hesitate to [star](https://gitlab.com/opensavvy/groundwork/spine) and share the project ❤️
