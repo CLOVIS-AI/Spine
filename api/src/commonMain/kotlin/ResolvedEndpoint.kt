@@ -19,6 +19,15 @@ class ResolvedEndpoint<E : AnyEndpoint> internal constructor(
 	override val path: Path,
 ) : Addressed
 
+/**
+ * Resolves an [endpoint] declared in a resolved resource.
+ *
+ * ### Example
+ *
+ * ```kotlin
+ * println(Root / Users / User("999") / User.get)
+ * ```
+ */
 operator fun <R : Resource, Endpoint : AnyEndpoint> ResolvedResource<R>.div(endpoint: Endpoint) = ResolvedEndpoint(
 	resource,
 	endpoint,

@@ -9,9 +9,44 @@ class Path(
 	val segments: List<Segment>,
 ) : Iterable<Path.Segment> by segments, Addressed {
 
+	/**
+	 * Convenience constructor that builds a [Path] from a list of string [segments].
+	 *
+	 * Each element is validated and wrapped as a [Segment]. See [Segment] for constraints.
+	 *
+	 * ### Example
+	 *
+	 * ```kotlin
+	 * // /api/v2/users/123/edit
+	 * val p = Path("api", "v2", "users", "123", "edit")
+	 * ```
+	 */
 	constructor(vararg segments: String) : this(segments.map(::Segment))
 
+	/**
+	 * Returns a new [Path] with [other] appended as the last segment.
+	 *
+	 * ### Example
+	 *
+	 * ```kotlin
+	 * val p: Path = …
+	 *
+	 * val p2 = p + Segment("foo")
+	 * ```
+	 */
 	operator fun plus(other: Segment): Path = Path(segments + other)
+
+	/**
+	 * Returns a new [Path] with [other] appended as the last segment.
+	 *
+	 * ### Example
+	 *
+	 * ```kotlin
+	 * val p: Path = …
+	 *
+	 * val p2 = p + "foo"
+	 * ```
+	 */
 	operator fun plus(other: String): Path = this + Segment(other)
 
 	override val path: Path
@@ -36,6 +71,12 @@ class Path(
 
 	override fun toString() = segments.joinToString(separator = "/", prefix = "/")
 
+	/**
+	 * A single segment of a URL [Path].
+	 *
+	 * The [text] must be a non-empty string and must not contain the '/' character.
+	 * Invalid values are rejected with an [IllegalArgumentException].
+	 */
 	@JvmInline
 	value class Segment(val text: String) {
 		init {
