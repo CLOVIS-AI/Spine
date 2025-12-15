@@ -3,7 +3,19 @@ package opensavvy.spine.api
 import kotlin.jvm.JvmInline
 import kotlin.reflect.KProperty
 
+/**
+ * Underlying storage for [Parameters]: a mutable map of parameter names to their raw string values.
+ *
+ * Library integrations may use this directly when constructing parameter bundles.
+ */
 typealias ParameterStorage = MutableMap<String, String>
+
+/**
+ * Factory function that builds a [Parameters] subtype backed by a [ParameterStorage].
+ *
+ * This type appears when the client calls an endpoint with parameters.
+ * To learn more, see [Parameters].
+ */
 typealias ParameterConstructor<P> = (ParameterStorage) -> P
 
 /**

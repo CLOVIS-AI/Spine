@@ -7,7 +7,7 @@ import io.ktor.http.*
  *
  * An endpoint can declare zero or more ways in which it can fail:
  * ```kotlin
- * val create by patch()
+ * val edit by patch()
  *     .request<UserModificationDto>()
  *     .failure<UserNotFound>(HttpStatusCode.NotFound)
  *     .failure<NotAllowed>(HttpStatusCode.Forbidden)

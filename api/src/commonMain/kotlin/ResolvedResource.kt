@@ -35,8 +35,45 @@ class ResolvedResource<R : Resource> internal constructor(
 	override fun toString() = "$path (represented by $resource)"
 }
 
+/**
+ * Resolves the static [child] resource under this [ResolvedResource].
+ *
+ * This operator participates in the resource resolution DSL.
+ *
+ * ### Example
+ *
+ * ```kotlin
+ * val users = Api / Users
+ * ```
+ */
 operator fun <Current : Resource, Child : StaticResource<Current>> ResolvedResource<Current>.div(child: Child): ResolvedResource<Child> = ResolvedResource(child, path + child.slug)
+
+/**
+ * Resolves the dynamic [child] resource under this [ResolvedResource] by binding its identifier.
+ *
+ * The identifier and the target resource are carried by [DynamicResource.Identified],
+ * typically created via the [DynamicResource.invoke] operator, e.g. `User("123")`.
+ *
+ * This operator participates in the resource resolution DSL.
+ *
+ * ### Example
+ *
+ * ```kotlin
+ * val user123 = Api / Users / User("123")
+ * ```
+ */
 operator fun <Current : Resource, Child : DynamicResource<Current>> ResolvedResource<Current>.div(child: DynamicResource.Identified<Current, Child>): ResolvedResource<Child> = ResolvedResource(child.resource, path + child.slug)
 
+/**
+ * Starts resolution from the [RootResource] and resolves the static [child].
+ *
+ * Syntactic sugar for `this.resolved / child`.
+ */
 operator fun <Root : RootResource, Child : StaticResource<Root>> Root.div(child: Child) = this.resolved / child
+
+/**
+ * Starts resolution from the [RootResource] and resolves the dynamic [child].
+ *
+ * Syntactic sugar for `this.resolved / child`.
+ */
 operator fun <Root : RootResource, Child : DynamicResource<Root>> Root.div(child: DynamicResource.Identified<Root, Child>) = this.resolved / child
