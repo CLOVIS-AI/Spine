@@ -57,6 +57,8 @@ client.request(Api.Users.create, user).isSuccessful() shouldBe true
 client.request(Api.Users.list).bodyOrNull() shouldContain user
 ```
 
+Learn more in [the documentation](https://spine.opensavvy.dev/).
+
 ## License
 
 This project is licensed under the [Apache 2.0 license](LICENSE).
