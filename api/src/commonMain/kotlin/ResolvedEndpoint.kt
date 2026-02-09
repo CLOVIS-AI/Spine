@@ -4,8 +4,8 @@ package opensavvy.spine.api
  * A resolved [Endpoint][AnyEndpoint].
  *
  * The [AnyEndpoint] interface represents the _declaration_ of an endpoint.
- * For example, `GET /api/users/{user}` is not a 'real' endpoint.
- * This class, [ResolvedEndpoint], represents 'real' endpoints: 'GET /api/users/111' and 'GET /api/users/222' are possible
+ * For example, `GET /api/users/{user}` is not a 'real' endpoint: each user has its own endpoint.
+ * This class, [ResolvedEndpoint], represents 'real' endpoints: `GET /api/users/111` and `GET /api/users/222` are possible
  * values of this class.
  *
  * To resolve an endpoint, start by [resolving its resource][ResolvedResource] then follow with the endpoint:

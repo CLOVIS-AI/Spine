@@ -6,22 +6,22 @@ Describe your Ktor API in code shared between the client and the server.
 <a href="https://opensavvy.dev/open-source/stability.html"><img src="https://badgen.net/static/Stability/alpha/purple"></a>
 <a href="https://javadoc.io/doc/dev.opensavvy.spine/api"><img src="https://badgen.net/static/Other%20versions/javadoc.io/blue"></a>
 
-When creating fullstack projects, using both Ktor as a client and a server, we need to make sure we are calling the same endpoints on both sides, with the same expected DTOs, etc.
+When creating fullstack projects, using both Ktor as a client and a server, we need to make sure we are calling the same endpoints on both sides, with the same expected DTOs, expect the same failures, etc.
 
-Using Kotlin Multiplatform and KotlinX.Serialization, we can easily share DTOs, but the structure of our API is often more than that.
+Using Kotlin Multiplatform and KotlinX.Serialization, we can easily share DTOs—but the structure of the API isn't as easy to share.
 
 ## Declaring a schema
 
 Spine is a library to declare a schema of our API in pure Kotlin. Once it is declared, we can use it identically on the client and server sides.
+
+First, declare a dependency on `dev.opensavvy.spine:api`.
 
 We define that:
 
 - [a **resource**](opensavvy.spine.api.Resource) is an imaginary data collection,
 - [an **endpoint**](opensavvy.spine.api.AnyEndpoint) is a single operation that acts on a given resource.
 
-In HTTP terms, a resource is a URI, and an endpoint is a record of a URI, an HTTP method, a specific request body type…
-
-Typically, resources are declared as singletons:
+We can declare the structure of our API like this:
 ```kotlin
 // Declare our root endpoint: /v1
 object Api : RootResource("v1") {
