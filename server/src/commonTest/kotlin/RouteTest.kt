@@ -57,6 +57,7 @@ private data class NotAllowed(val reason: String) {
 
 private class UserSearchParams(data: ParameterStorage) : Parameters(data) {
 	var includeDisabled by parameter(false)
+	var name: String? by parameter()
 }
 
 private object Routes : RootResource("routes") {
@@ -98,7 +99,12 @@ private val server by preparedServer {
 	routing {
 		route(Users.list) {
 			respond(
-				dataLock.withLock("list") { data.filter { it.enabled || parameters.includeDisabled } }
+				dataLock.withLock("list") {
+					data.filter {
+						(it.enabled || parameters.includeDisabled) &&
+							(parameters.name == null || it.name == parameters.name)
+					}
+				}
 			)
 		}
 
@@ -143,10 +149,11 @@ val client by server.preparedClient {
 	}
 }
 
-private suspend fun HttpClient.listUsers(includeDisabled: Boolean = false) = request(
+private suspend fun HttpClient.listUsers(includeDisabled: Boolean = false, name: String? = null) = request(
 	endpoint = Routes / Users / Users.list,
 	parameters = {
 		this.includeDisabled = includeDisabled
+		this.name = name
 	},
 ).bodyOrThrow()
 
@@ -199,6 +206,11 @@ fun SuiteDsl.routeTest() = suite("Route test") {
 			.also { client().createUser(it) }
 	}
 
+	val enabledUser2 by prepared {
+		UserDto(random.nextInt(0, 999).toString(), "enabled user 2", true)
+			.also { client().createUser(it) }
+	}
+
 	test("Listing enabled users") {
 		enabledUser()
 		disabledUser()
@@ -211,6 +223,13 @@ fun SuiteDsl.routeTest() = suite("Route test") {
 		disabledUser()
 
 		check(client().listUsers(includeDisabled = true) == listOf(enabledUser(), disabledUser()))
+	}
+
+	test("Listing users by name") {
+		enabledUser()
+		val user = enabledUser2()
+
+		check(client().listUsers(name = user.name) == listOf(user))
 	}
 
 	test("Accessing the details of a user") {

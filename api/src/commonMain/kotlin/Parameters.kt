@@ -223,8 +223,9 @@ inline operator fun <reified T> Parameters.Parameter<T>.getValue(thisRef: Parame
  * See [Parameters.parameter].
  */
 inline operator fun <reified T> Parameters.Parameter<T>.setValue(thisRef: Parameters, property: KProperty<*>, value: T) {
+	if (value == null) return
+
 	thisRef.data[name] = when (value) {
-		null -> value.toString()
 		is String -> value
 		is Boolean -> value.toString()
 		is Byte -> value.toString()
