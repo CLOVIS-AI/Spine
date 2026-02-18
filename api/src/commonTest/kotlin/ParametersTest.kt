@@ -36,6 +36,23 @@ fun SuiteDsl.parameters() = suite("Endpoint parameters") {
 		check(params.data == mapOf("archived" to "true"))
 	}
 
+	test("Optional parameters with explicit null values") {
+		class OptionalParams(data: ParameterStorage) : Parameters(data) {
+			var archived: Boolean? by parameter()
+			var private: Boolean? by parameter()
+		}
+
+		val params = buildParameters(::OptionalParams) {
+			archived = true
+			private = null
+		}
+
+		check(params.archived == true)
+		check(params.private == null)
+
+		check(params.data == mapOf("archived" to "true"))
+	}
+
 	test("Optional parameters with default values") {
 		class DefaultParams(data: ParameterStorage) : Parameters(data) {
 			var archived: Boolean by parameter(false)
