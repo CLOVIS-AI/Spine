@@ -17,7 +17,7 @@ fun SuiteDsl.parameters() = suite("Endpoint parameters") {
 		check(params.archived)
 		checkThrows<NoSuchElementException> { params.private }
 
-		check(params.data == mapOf("archived" to "true"))
+		check(params.data == mapOf("archived" to listOf("true")))
 	}
 
 	test("Optional parameters") {
@@ -33,7 +33,7 @@ fun SuiteDsl.parameters() = suite("Endpoint parameters") {
 		check(params.archived == true)
 		check(params.private == null)
 
-		check(params.data == mapOf("archived" to "true"))
+		check(params.data == mapOf("archived" to listOf("true")))
 	}
 
 	test("Optional parameters with explicit null values") {
@@ -50,7 +50,7 @@ fun SuiteDsl.parameters() = suite("Endpoint parameters") {
 		check(params.archived == true)
 		check(params.private == null)
 
-		check(params.data == mapOf("archived" to "true"))
+		check(params.data == mapOf("archived" to listOf("true")))
 	}
 
 	test("Optional parameters with default values") {
@@ -66,7 +66,39 @@ fun SuiteDsl.parameters() = suite("Endpoint parameters") {
 		check(params.archived)
 		check(!params.private)
 
-		check(params.data == mapOf("archived" to "true"))
+		check(params.data == mapOf("archived" to listOf("true")))
+	}
+
+	test("List parameters") {
+		class MandatoryParams(data: ParameterStorage) : Parameters(data) {
+			var categories: List<String> by listParameter("search_categories")
+			var tags by listParameter<String>()
+		}
+
+		val params = buildParameters(::MandatoryParams) {
+			categories = listOf("category a")
+		}
+
+		check(params.categories == listOf("category a"))
+		check(params.tags.isEmpty())
+
+		check(params.data == mapOf("search_categories" to listOf("category a")))
+	}
+
+	test("List parameters with empty value") {
+		class DefaultParams(data: ParameterStorage) : Parameters(data) {
+			var categories: List<String> by listParameter("categories")
+			var tags by listParameter<String>()
+		}
+
+		val params = buildParameters(::DefaultParams) {
+			tags = emptyList()
+		}
+
+		check(params.categories == emptyList<String>())
+		check(params.tags == emptyList<String>())
+
+		check(params.data == emptyMap<String, String>())
 	}
 
 	test("Supported types are mapped correctly") {
@@ -122,21 +154,21 @@ fun SuiteDsl.parameters() = suite("Endpoint parameters") {
 		check(params.double == 10.0)
 
 		check(params.data == mapOf(
-			"string" to "thing",
-			"bool" to "true",
+			"string" to listOf("thing"),
+			"bool" to listOf("true"),
 
-			"byte" to "1",
-			"short" to "2",
-			"int" to "3",
-			"long" to "4",
+			"byte" to listOf("1"),
+			"short" to listOf("2"),
+			"int" to listOf("3"),
+			"long" to listOf("4"),
 
-			"u_byte" to "5",
-			"u_short" to "6",
-			"uint" to "7",
-			"ulong" to "8",
+			"u_byte" to listOf("5"),
+			"u_short" to listOf("6"),
+			"uint" to listOf("7"),
+			"ulong" to listOf("8"),
 
-			"float" to "${9.0}", // JVM: "9.0" — JS: "9"
-			"double" to "${10.0}",
+			"float" to listOf("${9.0}"), // JVM: "9.0" — JS: "9"
+			"double" to listOf("${10.0}"),
 		))
 	}
 }

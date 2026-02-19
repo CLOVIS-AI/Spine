@@ -8,7 +8,7 @@ import kotlin.reflect.KProperty
  *
  * Library integrations may use this directly when constructing parameter bundles.
  */
-typealias ParameterStorage = MutableMap<String, String>
+typealias ParameterStorage = MutableMap<String, List<String>>
 
 /**
  * Factory function that builds a [Parameters] subtype backed by a [ParameterStorage].
@@ -124,6 +124,38 @@ abstract class Parameters(
 	 */
 	protected fun <T : Any?> parameter(name: String) = Parameter<T>(name, null)
 
+	/**
+	 * Declares a list of parameters of type [T].
+	 *
+	 * If the parameter is missing, reading it will return [emptyList] instead.
+	 *
+	 * The parameter is automatically named after the variable it is assigned to.
+	 *
+	 * ### Example
+	 *
+	 * ```kotlin
+	 * class ListUsers(data: ParameterStorage) : Parameters(data) {
+	 *     var tags by listParameter<String>()
+	 * }
+	 * ```
+	 */
+	protected fun <T : Any?> listParameter() = UnnamedListParameter<T>()
+
+	/**
+	 * Declares a list of parameters [name] of type [T].
+	 *
+	 * If the parameter is missing, reading it will return [emptyList] instead.
+	 *
+	 * ### Example
+	 *
+	 * ```kotlin
+	 * class ListUsers(data: ParameterStorage) : Parameters(data) {
+	 *     var tags by listParameter<String>("search_tags")
+	 * }
+	 * ```
+	 */
+	protected fun <T : Any?> listParameter(name: String) = ListParameter<T>(name)
+
 	override fun equals(other: Any?): Boolean {
 		if (this === other) return true
 		if (other == null || this::class != other::class) return false
@@ -172,6 +204,30 @@ abstract class Parameters(
 	}
 
 	/**
+	 * Internal type used by the parameter declaration syntax.
+	 *
+	 * See [Parameters].
+	 */
+	class UnnamedListParameter<T>
+
+	/**
+	 * A declared query list parameter in an API schema.
+	 *
+	 * See [Parameters].
+	 */
+	class ListParameter<T>(
+		/**
+		 * Name of the parameter as it appears in the URL.
+		 */
+		val name: String,
+	) {
+		init {
+			require(name.isNotBlank()) { "The name of a parameter cannot be empty: '$name'" }
+			require(name.none { it.isWhitespace() }) { "The name of a parameter cannot contain whitespace: '$name'" }
+		}
+	}
+
+	/**
 	 * The default parameter instance.
 	 *
 	 * Use this instance for operations that take no parameters.
@@ -192,29 +248,66 @@ inline operator fun <T> Parameters.UnnamedParameter<T>.provideDelegate(thisRef: 
  *
  * See [Parameters.parameter].
  */
+inline operator fun <T> Parameters.UnnamedListParameter<T>.provideDelegate(thisRef: Parameters, property: KProperty<*>) =
+	Parameters.ListParameter<T>(property.name)
+
+/**
+ * Internal method used by the parameter declaration syntax.
+ *
+ * See [Parameters.parameter].
+ */
 inline operator fun <reified T> Parameters.Parameter<T>.getValue(thisRef: Parameters, property: KProperty<*>): T {
-	val value = thisRef.data[name] ?: return run {
+	val value = thisRef.data[name]?.let {
+		if (it.size == 1)
+			it[0]
+		else
+			throw IllegalArgumentException(
+				"""
+					The parameter '$name' should not contain multiple values.
+					If you want to accept multiple parameters, use listParameters() instead of parameters().
+				""".trimIndent()
+			)
+	} ?: return run {
 		if (defaultValue is T)
 			defaultValue
 		else
-			throw NoSuchElementException("The parameter '${name}' is mandatory, but no value was provided.")
+			throw NoSuchElementException("The parameter '$name' is mandatory, but no value was provided.")
 	}
 
-	return when (T::class) {
-		String::class -> value as T
-		Boolean::class -> value.toBooleanStrict() as T
-		Byte::class -> value.toByte() as T
-		Short::class -> value.toShort() as T
-		Int::class -> value.toInt() as T
-		Long::class -> value.toLong() as T
-		UByte::class -> value.toUByte() as T
-		UShort::class -> value.toUShort() as T
-		UInt::class -> value.toUInt() as T
-		ULong::class -> value.toULong() as T
-		Float::class -> value.toFloat() as T
-		Double::class -> value.toDouble() as T
-		else -> throw UnsupportedOperationException("The type ${T::class.simpleName ?: T::class.toString()} is not currently supported in parameters.")
-	}
+	return stringToValue(value)
+}
+
+/**
+ * Internal method used by the parameter declaration syntax.
+ *
+ * See [Parameters.listParameter].
+ */
+inline operator fun <reified T> Parameters.ListParameter<T>.getValue(thisRef: Parameters, property: KProperty<*>): List<T> {
+	val value = thisRef.data[name] ?: return emptyList()
+
+	return value.map { stringToValue<T>(it) }
+}
+
+/**
+ * Internal method used by the parameter declaration syntax.
+ *
+ * See [Parameters.parameter].
+ */
+@PublishedApi
+internal inline fun <reified T> stringToValue(value: String) = when (T::class) {
+	String::class -> value as T
+	Boolean::class -> value.toBooleanStrict() as T
+	Byte::class -> value.toByte() as T
+	Short::class -> value.toShort() as T
+	Int::class -> value.toInt() as T
+	Long::class -> value.toLong() as T
+	UByte::class -> value.toUByte() as T
+	UShort::class -> value.toUShort() as T
+	UInt::class -> value.toUInt() as T
+	ULong::class -> value.toULong() as T
+	Float::class -> value.toFloat() as T
+	Double::class -> value.toDouble() as T
+	else -> throw UnsupportedOperationException("The type ${T::class.simpleName ?: T::class.toString()} is not currently supported in parameters.")
 }
 
 /**
@@ -223,23 +316,40 @@ inline operator fun <reified T> Parameters.Parameter<T>.getValue(thisRef: Parame
  * See [Parameters.parameter].
  */
 inline operator fun <reified T> Parameters.Parameter<T>.setValue(thisRef: Parameters, property: KProperty<*>, value: T) {
-	if (value == null) return
+	if (value == null) thisRef.data -= name
+	else thisRef.data[name] = listOf(valueToString(value))
+}
 
-	thisRef.data[name] = when (value) {
-		is String -> value
-		is Boolean -> value.toString()
-		is Byte -> value.toString()
-		is Short -> value.toString()
-		is Int -> value.toString()
-		is Long -> value.toString()
-		is UByte -> value.toString()
-		is UShort -> value.toString()
-		is UInt -> value.toString()
-		is ULong -> value.toString()
-		is Float -> value.toString()
-		is Double -> value.toString()
-		else -> throw UnsupportedOperationException("The type ${T::class.simpleName ?: T::class.toString()} is not currently supported in parameters.")
-	}
+/**
+ * Internal method used by the parameter declaration syntax.
+ *
+ * See [Parameters.listParameter].
+ */
+inline operator fun <reified T> Parameters.ListParameter<T>.setValue(thisRef: Parameters, property: KProperty<*>, value: List<T>) {
+	if (value.isEmpty()) thisRef.data -= name
+	else thisRef.data[name] = value.map(::valueToString)
+}
+
+/**
+ * Internal method used by the parameter declaration syntax.
+ *
+ * See [Parameters.parameter].
+ */
+@PublishedApi
+internal inline fun <reified T> valueToString(value: T) = when (value) {
+	is String -> value
+	is Boolean -> value.toString()
+	is Byte -> value.toString()
+	is Short -> value.toString()
+	is Int -> value.toString()
+	is Long -> value.toString()
+	is UByte -> value.toString()
+	is UShort -> value.toString()
+	is UInt -> value.toString()
+	is ULong -> value.toString()
+	is Float -> value.toString()
+	is Double -> value.toString()
+	else -> throw UnsupportedOperationException("The type ${T::class.simpleName ?: T::class.toString()} is not currently supported in parameters.")
 }
 
 /**

@@ -63,8 +63,9 @@ suspend inline fun <reified In : Any, reified Out : Any, reified Failure : Failu
 		method = endpoint.data.method
 		url(endpoint.path.toString())
 
-		for ((name, value) in endpoint.data.buildParameters(HashMap()).apply(parameters).data)
-			parameter(name, value)
+		for ((name, values) in endpoint.data.buildParameters(HashMap()).apply(parameters).data)
+			for (value in values)
+				parameter(name, value)
 
 		contentType(contentType)
 		setBody(input)

@@ -38,7 +38,7 @@ import io.ktor.server.plugins.contentnegotiation.ContentNegotiation as ServerCon
 // region API declaration
 
 @Serializable
-private data class UserDto(val id: String, val name: String, val enabled: Boolean)
+private data class UserDto(val id: String, val name: String, val enabled: Boolean, val tags: List<String>)
 
 @Serializable
 private data class NotFound(val id: String) {
@@ -58,6 +58,7 @@ private data class NotAllowed(val reason: String) {
 private class UserSearchParams(data: ParameterStorage) : Parameters(data) {
 	var includeDisabled by parameter(false)
 	var name: String? by parameter()
+	var tags by listParameter<String>()
 }
 
 private object Routes : RootResource("routes") {
@@ -102,7 +103,8 @@ private val server by preparedServer {
 				dataLock.withLock("list") {
 					data.filter {
 						(it.enabled || parameters.includeDisabled) &&
-							(parameters.name == null || it.name == parameters.name)
+							(parameters.name == null || it.name == parameters.name) &&
+							(parameters.tags.isEmpty() || it.tags.any { tag -> tag in parameters.tags })
 					}
 				}
 			)
@@ -149,11 +151,12 @@ val client by server.preparedClient {
 	}
 }
 
-private suspend fun HttpClient.listUsers(includeDisabled: Boolean = false, name: String? = null) = request(
+private suspend fun HttpClient.listUsers(includeDisabled: Boolean = false, name: String? = null, tags: List<String> = emptyList()) = request(
 	endpoint = Routes / Users / Users.list,
 	parameters = {
 		this.includeDisabled = includeDisabled
 		this.name = name
+		this.tags = tags
 	},
 ).bodyOrThrow()
 
@@ -184,30 +187,35 @@ fun SuiteDsl.routeTest() = suite("Route test") {
 	}
 
 	test("Creating a user") {
-		client().createUser(UserDto(userId(), "test", true))
+		client().createUser(UserDto(userId(), "test", true, emptyList()))
 	}
 
 	test("Cannot create two users with the same ID") {
-		client().createUser(UserDto(userId(), "test", true))
+		client().createUser(UserDto(userId(), "test", true, emptyList()))
 
 		val e = checkThrows<RuntimeException> {
-			client().createUser(UserDto(userId(), "test", true))
+			client().createUser(UserDto(userId(), "test", true, emptyList()))
 		}
 		check(e.message == "Could not find user ${userId()}")
 	}
 
 	val enabledUser by prepared {
-		UserDto(random.nextInt(0, 999).toString(), "enabled user", true)
+		UserDto(random.nextInt(0, 999).toString(), "enabled user", true, listOf("tag 1", "tag 2"))
 			.also { client().createUser(it) }
 	}
 
 	val disabledUser by prepared {
-		UserDto(random.nextInt(0, 999).toString(), "disabled user", false)
+		UserDto(random.nextInt(0, 999).toString(), "disabled user", false, emptyList())
 			.also { client().createUser(it) }
 	}
 
 	val enabledUser2 by prepared {
-		UserDto(random.nextInt(0, 999).toString(), "enabled user 2", true)
+		UserDto(random.nextInt(0, 999).toString(), "enabled user 2", true, listOf("tag 2", "tag 3"))
+			.also { client().createUser(it) }
+	}
+
+	val enabledUser3 by prepared {
+		UserDto(random.nextInt(0, 999).toString(), "enabled user 3", true, listOf("tag 4"))
 			.also { client().createUser(it) }
 	}
 
@@ -230,6 +238,14 @@ fun SuiteDsl.routeTest() = suite("Route test") {
 		val user = enabledUser2()
 
 		check(client().listUsers(name = user.name) == listOf(user))
+	}
+
+	test("Listing users by tag") {
+		enabledUser()
+		enabledUser2()
+		enabledUser3()
+
+		check(client().listUsers(tags = listOf("tag 1", "tag 4")) == listOf(enabledUser(), enabledUser3()))
 	}
 
 	test("Accessing the details of a user") {
