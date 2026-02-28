@@ -16,7 +16,7 @@ inline fun <reified In : Any, reified Out : Any, reified Failure : FailureSpec, 
 		handle {
 			val paramData: ParameterStorage = HashMap()
 			for ((name, values) in call.parameters.entries())
-				paramData[name] = values.first()
+				paramData[name] = values
 
 			val params = endpoint.buildParameters(paramData)
 

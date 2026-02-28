@@ -43,6 +43,18 @@ var endDate: String? by parameter(name = "end_date", default = null) //(4)!
 3. Declares the mandatory query parameter `start_date`.
 4. Declares the optional query parameter `end_date`, which is `#!kotlin null` when omitted by the client.
 
+It is also possible to define list parameters (e.g., of type `List<T>`) by calling the `by listParameter()` function.
+
+List parameters are not nullable and are empty by default.
+
+```kotlin
+var tags: List<String> by listParameter() //(1)!
+var categories: List<String> by listParameter(name = "search_categories") //(2)!
+```
+
+1. Declares the query list parameter `tags`, which is empty when omitted by the client.
+2. Declares the query list parameter `search_categories`, which is empty when omitted by the client.
+
 ## Server-side
 
 On the server-side, parameters are accessed via the special variable `parameters`:
