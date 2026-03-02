@@ -7,9 +7,7 @@ import arrow.core.raise.recover
 import io.ktor.server.routing.*
 import io.ktor.utils.io.*
 import opensavvy.spine.api.Endpoint
-import opensavvy.spine.api.FailureSpec.ByCode
-import opensavvy.spine.api.FailureSpec.Never
-import opensavvy.spine.api.FailureSpec.Or
+import opensavvy.spine.api.FailureSpec.*
 import opensavvy.spine.api.Parameters
 import opensavvy.spine.server.TypedResponseScope
 import opensavvy.spine.server.fail
