@@ -99,6 +99,11 @@ import kotlin.reflect.KProperty
  * Note, however, that this guarantees that your code will stop compiling in future versions of this library.
  */
 sealed interface AnyEndpoint {
+	/**
+	 * The [Resource] this [Endpoint][AnyEndpoint] is declared as a part of.
+	 *
+	 * For example, `GET /api/v2/users` is an endpoint of the resource `/api/v2/users`.
+	 */
 	val resource: Resource
 
 	/**
@@ -109,7 +114,21 @@ sealed interface AnyEndpoint {
 	/**
 	 * Optional path extension from the [Resource] this endpoint is a part of.
 	 *
-	 * To access the real path of this endpoint, see [ResolvedEndpoint.path].
+	 * For example, the endpoint:
+	 * ```kotlin
+	 * object Users : RootResource("/users") {
+	 *     val list by get()
+	 * }
+	 * ```
+	 * has a [path] of `null`, but the endpoint:
+	 * ```kotlin
+	 * object Users : RootResource("/users") {
+	 *    val me by get("/me")
+	 * }
+	 * ```
+	 * has a [path] of `"/me"`.
+	 *
+	 * To access the full path of this endpoint, resolve it (see [ResolvedResource]) then access [ResolvedEndpoint.path].
 	 */
 	val path: Path.Segment?
 
@@ -125,6 +144,8 @@ sealed interface AnyEndpoint {
 
 	/**
 	 * Constructor for query parameters.
+	 *
+	 * This field contains a function that creates a [Parameters] instance from some [ParameterStorage].
 	 *
 	 * If no query parameters are used by this endpoint, this function returns [Parameters.Empty].
 	 */
