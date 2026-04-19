@@ -92,9 +92,35 @@ sealed interface FailureSpec {
 	 *
 	 * This type is used to type-safely represent an endpoint that can failure in multiple different ways.
 	 * It is not expected that end-users need to use this type, though you may see it appear in inlay hints.
+	 *
+	 * ### Union types
+	 *
+	 * This type emulates a union of two types.
+	 * It can be expanded into a union of arbitrary arity by using [Or] recursively.
+	 * By convention, [Or] instances can only appear in [A], not in [B].
+	 *
+	 * By convention, [Or] unions always start with the [Never] type.
+	 *
+	 * Therefore, [a] can contain either [Never] or [Or]. [b] can contain only proper failure types, like [ByCode].
+	 * The following union follows these rules:
+	 * ```kotlin
+	 * val a = Or(Never, Or(ByCode(502), Or(ByCode(404), ByCode(403))))
+	 * ```
 	 */
 	class Or<out A : FailureSpec, out B : FailureSpec>(
+		/**
+		 * The left-hand side of the union.
+		 *
+		 * By convention, this field can only contain [Never] or [Or] instances.
+		 * If this convention is not respected, the union may not be properly recognized by the library methods.
+		 */
 		val a: A,
+		/**
+		 * The right-hand side of the union.
+		 *
+		 * By convention, this field can only contain proper failure specifications, like [ByCode].
+		 * If this convention is not respected, the union may not be properly recognized by the library methods.
+		 */
 		val b: B,
 	) : FailureSpec
 }
@@ -126,7 +152,7 @@ private fun FailureSpec.all(): Sequence<FailureSpec> = sequence {
  *    companion object : FailureCompanion<UserNotFound>(HttpStatusCode.NotFound)
  * }
  *
- * // …An endpoint in a resources…
+ * // …An endpoint in a resource…
  * val getMe by get("me")
  *     .result<UserDto>()
  *     .failure(UserNotFound)

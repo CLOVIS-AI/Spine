@@ -4,8 +4,9 @@ package opensavvy.spine.api
  * A resolved [Resource].
  *
  * The [Resource] class represents the _declaration_ of a resource.
- * For example, the `/api/users/{user}` is not a 'real' resource.
- * This class, [ResolvedResource], represents 'real' resources: '/api/users/111' and '/api/users/222' are possible
+ * For example, the `/api/users/{user}` is not a 'real' resource: it is a pattern
+ * from which multiple resources can be created (each user gets their own resource).
+ * This class, [ResolvedResource], represents 'real' resources: `/api/users/111` and `/api/users/222` are possible
  * values of this class.
  *
  * To instantiate this class, specify the full path from the root, adding necessary runtime information where necessary.
