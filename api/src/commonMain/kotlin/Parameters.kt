@@ -106,7 +106,7 @@ abstract class Parameters(
 	 * }
 	 * ```
 	 */
-	protected fun <T : Any?> parameter() = UnnamedParameter<T>(null)
+	protected fun <T> parameter() = UnnamedParameter<T>(null)
 
 	/**
 	 * Declares a parameter [name] of type [T].
@@ -122,7 +122,7 @@ abstract class Parameters(
 	 * }
 	 * ```
 	 */
-	protected fun <T : Any?> parameter(name: String) = Parameter<T>(name, null)
+	protected fun <T> parameter(name: String) = Parameter<T>(name, null)
 
 	/**
 	 * Declares a list of parameters of type [T].
@@ -139,7 +139,7 @@ abstract class Parameters(
 	 * }
 	 * ```
 	 */
-	protected fun <T : Any?> listParameter() = UnnamedListParameter<T>()
+	protected fun <T> listParameter() = UnnamedListParameter<T>()
 
 	/**
 	 * Declares a list of parameters [name] of type [T].
@@ -154,7 +154,7 @@ abstract class Parameters(
 	 * }
 	 * ```
 	 */
-	protected fun <T : Any?> listParameter(name: String) = ListParameter<T>(name)
+	protected fun <T> listParameter(name: String) = ListParameter<T>(name)
 
 	override fun equals(other: Any?): Boolean {
 		if (this === other) return true
