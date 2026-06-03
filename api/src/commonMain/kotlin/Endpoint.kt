@@ -1,8 +1,9 @@
 package opensavvy.spine.api
 
 import io.ktor.http.*
-import kotlin.reflect.KClass
 import kotlin.reflect.KProperty
+import kotlin.reflect.KType
+import kotlin.reflect.typeOf
 
 /**
  * A specific HTTP [method] in a [resource].
@@ -135,12 +136,12 @@ sealed interface AnyEndpoint {
 	/**
 	 * The type of the body went the client sends data to the server.
 	 */
-	val requestType: KClass<*>
+	val requestType: KType
 
 	/**
 	 * The type of the body when the server responds to a client.
 	 */
-	val responseType: KClass<*>
+	val responseType: KType
 
 	/**
 	 * Constructor for query parameters.
@@ -178,6 +179,8 @@ sealed interface AnyEndpoint {
 		 * Note that you may need to perform some configuration on the Ktor side before using some types, see the
 		 * official documentation for instructions.
 		 *
+		 * Do not specify the [type] parameter. It will be passed automatically when declaring the endpoint.
+		 *
 		 * ### Example
 		 *
 		 * ```kotlin
@@ -190,7 +193,7 @@ sealed interface AnyEndpoint {
 		 *
 		 * @see response
 		 */
-		fun <T : Any> request(kClass: KClass<T>): Builder
+		fun <T : Any> request(type: KType): Builder
 
 		/**
 		 * Declares the response body type.
@@ -201,6 +204,8 @@ sealed interface AnyEndpoint {
 		 * Therefore, all types that would be valid with content negotiation can be used with this library.
 		 * Note that you may need to perform some configuration on the Ktor side before using some types, see the
 		 * official documentation for instructions.
+		 *
+		 * Do not specify the [type] parameter. It will be passed automatically when declaring the endpoint.
 		 *
 		 * ### Example
 		 *
@@ -214,7 +219,7 @@ sealed interface AnyEndpoint {
 		 *
 		 * @see request
 		 */
-		fun <T : Any> response(kClass: KClass<T>): Builder
+		fun <T : Any> response(type: KType): Builder
 
 		/**
 		 * Declares query parameters that the client will need to provide to the server.
@@ -320,8 +325,8 @@ class Endpoint<In : Any, Out : Any, Failure : FailureSpec, Params : Parameters> 
 	override val resource: Resource,
 	override val method: HttpMethod,
 	override val path: Path.Segment?,
-	override val requestType: KClass<In>,
-	override val responseType: KClass<Out>,
+	override val requestType: KType,
+	override val responseType: KType,
 	override val failureSpec: Failure,
 	override val buildParameters: ParameterConstructor<Params>,
 ) : AnyEndpoint {
@@ -345,26 +350,28 @@ class Endpoint<In : Any, Out : Any, Failure : FailureSpec, Params : Parameters> 
 		private val onCreate: (AnyEndpoint) -> Unit,
 	) : AnyEndpoint.Builder {
 
-		override fun <T : Any> request(kClass: KClass<T>) = EndpointBuilder(
-			Endpoint(endpoint.resource, endpoint.method, endpoint.path, kClass, endpoint.responseType, endpoint.failureSpec, endpoint.buildParameters),
+		override fun <T : Any> request(type: KType): EndpointBuilder<T, Out, Failure, Params> = EndpointBuilder(
+			Endpoint(endpoint.resource, endpoint.method, endpoint.path, type, endpoint.responseType, endpoint.failureSpec, endpoint.buildParameters),
 			onCreate
 		)
 
-		inline fun <reified T : Any> request() = request(T::class)
+		inline fun <reified T : Any> request(): EndpointBuilder<T, Out, Failure, Params> =
+			request(typeOf<T>())
 
-		override fun <T : Any> response(kClass: KClass<T>) = EndpointBuilder(
-			Endpoint(endpoint.resource, endpoint.method, endpoint.path, endpoint.requestType, kClass, endpoint.failureSpec, endpoint.buildParameters),
+		override fun <T : Any> response(type: KType): EndpointBuilder<In, T, Failure, Params> = EndpointBuilder(
+			Endpoint(endpoint.resource, endpoint.method, endpoint.path, endpoint.requestType, type, endpoint.failureSpec, endpoint.buildParameters),
 			onCreate
 		)
 
-		inline fun <reified T : Any> response() = response(T::class)
+		inline fun <reified T : Any> response(): EndpointBuilder<In, T, Failure, Params> =
+			response(typeOf<T>())
 
-		override fun <P : Parameters> parameters(build: (ParameterStorage) -> P) = EndpointBuilder(
+		override fun <P : Parameters> parameters(build: (ParameterStorage) -> P): EndpointBuilder<In, Out, Failure, P> = EndpointBuilder(
 			Endpoint(endpoint.resource, endpoint.method, endpoint.path, endpoint.requestType, endpoint.responseType, endpoint.failureSpec, build),
 			onCreate
 		)
 
-		override fun <S : FailureSpec> failure(spec: S) = EndpointBuilder(
+		override fun <S : FailureSpec> failure(spec: S): EndpointBuilder<In, Out, FailureSpec.Or<Failure, S>, Params> = EndpointBuilder(
 			Endpoint(endpoint.resource, endpoint.method, endpoint.path, endpoint.requestType, endpoint.responseType, endpoint.failureSpec + spec, endpoint.buildParameters),
 			onCreate
 		)
