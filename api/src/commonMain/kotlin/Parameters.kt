@@ -19,7 +19,7 @@ typealias ParameterStorage = MutableMap<String, List<String>>
 typealias ParameterConstructor<P> = (ParameterStorage) -> P
 
 /**
- * Additional parameters for [endpoints][Endpoint].
+ * Additional parameters for [endpoints][AnyEndpoint].
  *
  * Endpoints declare mandatory parameters, such as the identifier of the resource.
  * This abstract class allows to declare additional parameters in a type-safe manner.
