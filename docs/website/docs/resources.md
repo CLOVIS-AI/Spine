@@ -66,7 +66,7 @@ Here is an example that describes the endpoints:
 
 ## The root resource
 
-> Reference: [`RootResource`](api/-multiplatform%20-ktor%20schema%20declaration/opensavvy.spine.api/-root-resource)
+> Reference: [`RootResource`](api/api/opensavvy.spine.api/-root-resource/index.md)
 
 The root resource is the root of a specific API.
 
@@ -80,7 +80,7 @@ object Api3 : RootResource("v3")
 
 ## Static resources
 
-> Reference: [`StaticResource`](api/-multiplatform%20-ktor%20schema%20declaration/opensavvy.spine.api/-static-resource)
+> Reference: [`StaticResource`](api/api/opensavvy.spine.api/-static-resource/index.md)
 
 A static resource represents a path within another resource. Each static resource must refer to its direct parent in the constructor call.
 
@@ -107,7 +107,7 @@ To refer to a static resource on the client-side, you can use the slash notation
 
 ## Dynamic resources
 
-> Reference: [`DynamicResource`](api/-multiplatform%20-ktor%20schema%20declaration/opensavvy.spine.api/-dynamic-resource)
+> Reference: [`DynamicResource`](api/api/opensavvy.spine.api/-dynamic-resource/index.md)
 
 Dynamic resources represent a segment that can have multiple different values at runtime. Typically, this is used for the ID of a resource.
 
@@ -132,7 +132,7 @@ object V2 : RootResource("v2") {
 
 To refer to a dynamic resource on the server-side, you can use the regular Kotlin `.` notation: `Api2.Users.User.Friends.Friend`.
 
-When implementing a dynamic resource on the server-side, you can access the value of the path parameter using the method [`idOf`](api/-server-side%20typesafe%20-spine%20schema%20usage/opensavvy.spine.server/-typed-response-scope/id-of.md):
+When implementing a dynamic resource on the server-side, you can access the value of the path parameter using the method [`idOf`](api/server/opensavvy.spine.server/-typed-response-scope/index.md#idof):
 
 ```kotlin
 route(Api2.Users.User.Friends.Friend) {

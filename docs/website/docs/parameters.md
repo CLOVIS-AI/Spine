@@ -1,6 +1,6 @@
 # Declare query parameters with Spine
 
-> Reference: [`Parameters`](api/-multiplatform%20-ktor%20schema%20declaration/opensavvy.spine.api/-parameters)
+> Reference: [`Parameters`](api/api/opensavvy.spine.api/-parameters/index.md)
 
 With Spine, query parameters can be declared in your multiplatform code and type-safely referred to on the server and client side.
 
