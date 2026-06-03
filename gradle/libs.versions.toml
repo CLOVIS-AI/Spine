@@ -2,7 +2,7 @@
 
 [versions]
 
-ktor = "3.3.3"                # https://github.com/ktorio/ktor/releases
+ktor = "3.5.0"                # https://github.com/ktorio/ktor/releases
 
 arrow = "2.2.0"               # https://github.com/arrow-kt/arrow/releases
 
