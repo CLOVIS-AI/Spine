@@ -33,12 +33,6 @@ kotlin {
 		implementation(libs.ktor.kotlinxJson)
 		implementation(projects.clientArrow)
 	}
-
-	sourceSets.all {
-		languageSettings {
-			enableLanguageFeature("ContextParameters")
-		}
-	}
 }
 
 library {
