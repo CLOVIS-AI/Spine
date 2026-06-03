@@ -69,6 +69,7 @@ suspend inline fun <reified Out : Any> SpineResponse<Out, *>.bodyOrThrow(): Out 
 /**
  * The exception thrown by [bodyOrThrow].
  */
+@Suppress("CanBeParameter") // 'response' is unused in our code, but it's useful in user code
 class SpineReceptionException(
 	val response: HttpResponse,
 	body: String,

@@ -208,6 +208,7 @@ abstract class Parameters(
 	 *
 	 * See [Parameters].
 	 */
+	@Suppress("unused") // The parameter T is unused for now but may be used in the future
 	class UnnamedListParameter<T>
 
 	/**
@@ -215,6 +216,7 @@ abstract class Parameters(
 	 *
 	 * See [Parameters].
 	 */
+	@Suppress("unused") // The parameter T is unused for now but may be used in the future
 	class ListParameter<T>(
 		/**
 		 * Name of the parameter as it appears in the URL.

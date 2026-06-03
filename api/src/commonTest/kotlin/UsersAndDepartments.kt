@@ -5,6 +5,7 @@ package opensavvy.spine.api
 
 // It represents a simple API in which users are assigned to one or more departments
 
+@Suppress("unused") // Don't complain about unused endpoints
 object Root : RootResource("api") {
 	object Users : StaticResource<Root>("users", Root) {
 
