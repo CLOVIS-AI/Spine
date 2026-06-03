@@ -1,7 +1,7 @@
 #!/usr/bin/env kotlin
 
 // https://gitlab-ci-kts.opensavvy.dev/news/index.html
-@file:DependsOn("dev.opensavvy.gitlab:gitlab-ci-kotlin-jvm:0.7.2")
+@file:DependsOn("dev.opensavvy.gitlab:gitlab-ci-kotlin-jvm:0.7.5")
 
 import opensavvy.gitlab.ci.*
 import opensavvy.gitlab.ci.Environment.EnvironmentTier.Development
@@ -9,8 +9,10 @@ import opensavvy.gitlab.ci.plugins.Gradle.Companion.gradlew
 import opensavvy.gitlab.ci.plugins.Gradle.Companion.useGradle
 import opensavvy.gitlab.ci.script.shell
 
-// https://gitlab.com/opensavvy/automation/containers/-/releases
-val ciContainers = "0.8.4"
+/**
+ * [OpenSavvy's CI container images](https://gitlab.com/opensavvy/automation/containers/-/releases)
+ */
+val ciContainers = "0.8.7"
 
 /**
  * The URL of the website built by /docs/website.
@@ -22,6 +24,31 @@ val siteUrl = "https://spine.opensavvy.dev/"
 fun Job.opensavvyImage(name: String) =
 	image("registry.gitlab.com/opensavvy/automation/containers/$name", ciContainers)
 
+// region GitLab
+
+/**
+ * Renames all JUnit XML test reports to remove non-latin-1 characters, because GitLab crashes in their presence.
+ *
+ * See [GITLAB-580885](https://gitlab.com/gitlab-org/gitlab/-/issues/580885).
+ */
+fun Job.stripUnicodeTestReports() {
+	afterScript {
+		// language="Shell Script"
+		shell($$"""
+			find . -path '*/build/test-results/*/TEST-*.xml' -print0 |
+			  perl -C -0ne 'print if /[^\x00-\xFF]/' |
+			  while IFS= read -r -d '' f; do
+			    d="$(dirname "$f")"
+			    b="$(basename "$f")"
+			    nb=$(printf '%s' "$b" | perl -C -pe 's/[\x{80}-\x{FFFF}]/-/g')
+			    mv -- "$f" "$d/$nb"
+			  done
+		""".trimIndent())
+		shell("find . -path '*/build/test-results/*/TEST-*.xml'")
+	}
+}
+
+// endregion
 // region Kotlin Multiplatform
 
 fun Job.jvm() {
@@ -32,31 +59,41 @@ fun Job.jvm() {
 fun Job.jsBrowser() {
 	useGradle()
 	opensavvyImage("chromium")
+
+	stripUnicodeTestReports()
 }
 
 fun Job.jsNode() {
 	useGradle()
 	opensavvyImage("nodejs")
+
+	stripUnicodeTestReports()
 }
 
 fun Job.nativeLinuxX64() {
 	useGradle()
 	opensavvyImage("java")
+
+	stripUnicodeTestReports()
 }
 
 fun Job.nativeIosArm64() {
 	useGradle()
-	image("macos-15-xcode-16")
+	image("macos-26-xcode-26")
 
 	beforeScript {
 		shell("xcodebuild -downloadPlatform iOS")
+		shell("xcodebuild -downloadPlatform watchOS")
 	}
 
 	tag("saas-macos-medium-m1")
 
 	retry(1) {
 		onExitCode(1)
+		on(RetryCause.ScriptFailure)
 	}
+
+	stripUnicodeTestReports()
 }
 
 // endregion
@@ -81,12 +118,8 @@ gitlabCi {
 				"-x wasmWasiNodeTest",
 				"-x linuxX64Test",
 				"-x mingwX64Test",
-				"-x macosX64Test",
 				"-x macosArm64Test",
-				"-x iosX64Test",
 				"-x iosSimulatorArm64Test",
-				"-x watchosX64Test",
-				"-x tvosX64Test",
 				$$"-PappVersion=$project_version",
 			)
 		}
@@ -148,7 +181,7 @@ gitlabCi {
 
 		script {
 			gradlew.tasks(
-				"iosSimulatorArm64Test watchosSimulatorArm64Test",
+				"iosSimulatorArm64Test macosArm64Test tvosSimulatorArm64Test watchosSimulatorArm64Test",
 				$$"-PappVersion=$project_version",
 			)
 		}
