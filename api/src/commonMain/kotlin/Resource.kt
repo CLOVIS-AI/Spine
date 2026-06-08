@@ -1,6 +1,7 @@
 package opensavvy.spine.api
 
 import io.ktor.http.*
+import kotlin.reflect.typeOf
 
 /**
  * Common parent for all resource types.
@@ -72,15 +73,16 @@ sealed class Resource(
 		get() = _endpoints.asSequence()
 
 	@Suppress("DEPRECATION_ERROR")
-	private fun endpoint(method: HttpMethod, path: String? = null) = Endpoint(
-		resource = this@Resource,
-		method = method,
-		path = path?.let(Path::Segment),
-		requestType = Unit::class,
-		responseType = Unit::class,
-		buildParameters = { Parameters.Empty },
-		failureSpec = FailureSpec.Never,
-	).asBuilder { _endpoints += it }
+	private fun endpoint(method: HttpMethod, path: String? = null): Endpoint.EndpointBuilder<Unit, Unit, FailureSpec.Never, Parameters.Empty> =
+		Endpoint<Unit, Unit, FailureSpec.Never, Parameters.Empty>(
+			resource = this@Resource,
+			method = method,
+			path = path?.let(Path::Segment),
+			requestType = typeOf<Unit>(),
+			responseType = typeOf<Unit>(),
+			buildParameters = { Parameters.Empty },
+			failureSpec = FailureSpec.Never,
+		).asBuilder { _endpoints += it }
 
 	/**
 	 * Creates a [`GET`][HttpMethod.Get] HTTP endpoint in this resource.
