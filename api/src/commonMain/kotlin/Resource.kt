@@ -332,7 +332,7 @@ val Resource.hierarchy: Sequence<Resource>
  * @see Resource.slug The segment of this specific resource.
  */
 val Resource.fullSlug: String
-	get() = hierarchy.map { it.slug }.joinToString("/")
+	get() = hierarchy.joinToString("/") { it.slug }
 
 /**
  * Returns all endpoints that are declared on this resource or any of its children.
@@ -342,7 +342,3 @@ val Resource.fullSlug: String
  */
 val Resource.endpoints: Sequence<AnyEndpoint>
 	get() = directEndpoints + children.flatMap { it.endpoints }
-
-internal fun Resource.extendPath(extension: String? = null) =
-	if (extension != null) "$fullSlug/$extension"
-	else fullSlug

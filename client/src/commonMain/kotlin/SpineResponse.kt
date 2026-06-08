@@ -69,6 +69,7 @@ suspend inline fun <reified Out : Any> SpineResponse<Out, *>.bodyOrThrow(): Out 
 /**
  * The exception thrown by [bodyOrThrow].
  */
+@Suppress("CanBeParameter") // 'response' is unused in our code, but it's useful in user code
 class SpineReceptionException(
 	val response: HttpResponse,
 	body: String,
@@ -97,7 +98,7 @@ internal suspend inline fun <reified F, O> handleFailureUnchecked(
 /**
  * Exhaustively handle failures.
  *
- * If the request is succesful, [transform] is called.
+ * If the request is successful, [transform] is called.
  * If the request fails with the error [F1], [handle1] is called.
  *
  * To learn more about failures, see [the documentation](https://spine.opensavvy.dev/failures.html).
@@ -122,7 +123,7 @@ suspend inline fun <reified Out : Any, O, reified F1> SpineResponse<Out, Or<Neve
 /**
  * Exhaustively handle failures.
  *
- * If the request is succesful, [transform] is called.
+ * If the request is successful, [transform] is called.
  * If the request fails with an error, the corresponding handler is called.
  *
  * To learn more about failures, see [the documentation](https://spine.opensavvy.dev/failures.html).
@@ -149,7 +150,7 @@ suspend inline fun <reified Out : Any, O, reified F1, reified F2> SpineResponse<
 /**
  * Exhaustively handle failures.
  *
- * If the request is succesful, [transform] is called.
+ * If the request is successful, [transform] is called.
  * If the request fails with an error, the corresponding handler is called.
  *
  * To learn more about failures, see [the documentation](https://spine.opensavvy.dev/failures.html).
@@ -178,7 +179,7 @@ suspend inline fun <reified Out : Any, O, reified F1, reified F2, reified F3> Sp
 /**
  * Exhaustively handle failures.
  *
- * If the request is succesful, [transform] is called.
+ * If the request is successful, [transform] is called.
  * If the request fails with an error, the corresponding handler is called.
  *
  * To learn more about failures, see [the documentation](https://spine.opensavvy.dev/failures.html).
@@ -209,7 +210,7 @@ suspend inline fun <reified Out : Any, O, reified F1, reified F2, reified F3, re
 /**
  * Exhaustively handle failures.
  *
- * If the request is succesful, [transform] is called.
+ * If the request is successful, [transform] is called.
  * If the request fails with an error, the corresponding handler is called.
  *
  * To learn more about failures, see [the documentation](https://spine.opensavvy.dev/failures.html).
@@ -242,7 +243,7 @@ suspend inline fun <reified Out : Any, O, reified F1, reified F2, reified F3, re
 /**
  * Exhaustively handle failures.
  *
- * If the request is succesful, [transform] is called.
+ * If the request is successful, [transform] is called.
  * If the request fails with an error, the corresponding handler is called.
  *
  * To learn more about failures, see [the documentation](https://spine.opensavvy.dev/failures.html).

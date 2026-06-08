@@ -19,7 +19,7 @@ typealias ParameterStorage = MutableMap<String, List<String>>
 typealias ParameterConstructor<P> = (ParameterStorage) -> P
 
 /**
- * Additional parameters for [endpoints][Endpoint].
+ * Additional parameters for [endpoints][AnyEndpoint].
  *
  * Endpoints declare mandatory parameters, such as the identifier of the resource.
  * This abstract class allows to declare additional parameters in a type-safe manner.
@@ -106,7 +106,7 @@ abstract class Parameters(
 	 * }
 	 * ```
 	 */
-	protected fun <T : Any?> parameter() = UnnamedParameter<T>(null)
+	protected fun <T> parameter() = UnnamedParameter<T>(null)
 
 	/**
 	 * Declares a parameter [name] of type [T].
@@ -122,7 +122,7 @@ abstract class Parameters(
 	 * }
 	 * ```
 	 */
-	protected fun <T : Any?> parameter(name: String) = Parameter<T>(name, null)
+	protected fun <T> parameter(name: String) = Parameter<T>(name, null)
 
 	/**
 	 * Declares a list of parameters of type [T].
@@ -139,7 +139,7 @@ abstract class Parameters(
 	 * }
 	 * ```
 	 */
-	protected fun <T : Any?> listParameter() = UnnamedListParameter<T>()
+	protected fun <T> listParameter() = UnnamedListParameter<T>()
 
 	/**
 	 * Declares a list of parameters [name] of type [T].
@@ -154,7 +154,7 @@ abstract class Parameters(
 	 * }
 	 * ```
 	 */
-	protected fun <T : Any?> listParameter(name: String) = ListParameter<T>(name)
+	protected fun <T> listParameter(name: String) = ListParameter<T>(name)
 
 	override fun equals(other: Any?): Boolean {
 		if (this === other) return true
@@ -208,6 +208,7 @@ abstract class Parameters(
 	 *
 	 * See [Parameters].
 	 */
+	@Suppress("unused") // The parameter T is unused for now but may be used in the future
 	class UnnamedListParameter<T>
 
 	/**
@@ -215,6 +216,7 @@ abstract class Parameters(
 	 *
 	 * See [Parameters].
 	 */
+	@Suppress("unused") // The parameter T is unused for now but may be used in the future
 	class ListParameter<T>(
 		/**
 		 * Name of the parameter as it appears in the URL.
