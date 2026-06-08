@@ -1,6 +1,6 @@
 # Declare fullstack Ktor endpoints with Spine
 
-> Reference: [`AnyEndpoint`](api/-multiplatform%20-ktor%20schema%20declaration/opensavvy.spine.api/-any-endpoint)
+> Reference: [`AnyEndpoint`](api/api/opensavvy.spine.api/-any-endpoint/index.md)
 
 Once you have described the [resources](resources.md) of your API, you can declare endpoints. Each endpoint is a combination of a path, an HTTP method, and more optional information, like the body type.
 
@@ -19,13 +19,13 @@ The name of the variable itself doesn't matter.
 For the remainder of this page, the enclosing resource is omitted from code samples for conciseness.
 
 !!! danger "Do not explicitly write the type of your endpoints"
-In Kotlin, we have the choice of explicitly writing a variable's type, or letting the compiler infer it.
-```kotlin
-val get: SomeTypeHere by get()
-```
-However, this should be avoided for Spine endpoints. We recommend letting the compiler infer the type. If you write the type explicitly, it is likely that your code will not compile anymore when new versions of Spine are released. If you're curious, you can learn more [here](api/-multiplatform%20-ktor%20schema%20declaration/opensavvy.spine.api/-any-endpoint/index.md#the-trick).
+    In Kotlin, we have the choice of explicitly writing a variable's type, or letting the compiler infer it.
+    ```kotlin
+    val get: SomeTypeHere by get()
+    ```
+    However, this should be avoided for Spine endpoints. We recommend letting the compiler infer the type. If you write the type explicitly, it is likely that your code will not compile anymore when new versions of Spine are released. If you're curious, you can learn more [here](api/api/opensavvy.spine.api/-any-endpoint/index.md#the-trick).
 
-    If you really must write the type of an endpoint (for example if you write an introspection function that prints all endpoints), you should use the `AnyEndpoint` type, which has access to all endpoint informatino but without type safety.
+    If you really must write the type of an endpoint (for example if you write an introspection function that prints all endpoints), you should use the `AnyEndpoint` type, which has access to all endpoint information but without type safety.
 
 ## HTTP method
 
@@ -96,10 +96,10 @@ val createUser by post()
 	.response<UserDto>()
 ```
 
-1. [`request`](api/-multiplatform%20-ktor%20schema%20declaration/opensavvy.spine.api/-any-endpoint/-builder/request.md) allows declaring the type of the data sent by the client. The value will go through Ktor's usual content negotiation, following your existing configuration.
-2. [`response`](api/-multiplatform%20-ktor%20schema%20declaration/opensavvy.spine.api/-any-endpoint/-builder/response.md) allows declaring the type of the data sent by the server. The value will go through Ktor's usual content negotiation, following your existing configuration.
+1. [`response`](api/api/opensavvy.spine.api/-any-endpoint/-builder/index.md#response) allows declaring the type of the data sent by the server. The value will go through Ktor's usual content negotiation, following your existing configuration.
+2. [`request`](api/api/opensavvy.spine.api/-any-endpoint/-builder/index.md#request) allows declaring the type of the data sent by the client. The value will go through Ktor's usual content negotiation, following your existing configuration.
 
-On the server-side, the request body is accessible through the [`body`](api/-server-side%20typesafe%20-spine%20schema%20usage/opensavvy.spine.server/-typed-response-scope/body.md) variable, and the response body can be sent with the function [`respond`](api/-server-side%20typesafe%20-spine%20schema%20usage/opensavvy.spine.server/respond.md):
+On the server-side, the request body is accessible through the [`body`](api/server/opensavvy.spine.server/-typed-response-scope/index.md#body) variable, and the response body can be sent with the function [`respond`](api/server/opensavvy.spine.server/-typed-response-scope/index.md#respond):
 
 ```kotlin
 route(Users.createUser) {
@@ -109,7 +109,7 @@ route(Users.createUser) {
 }
 ```
 
-On the client-side, the request body is passed as the second argument of the function [`request`](api/-client-side%20typesafe%20-spine%20schema%20usage/opensavvy.spine.client/request.md), and the response is acquired via the result of [`bodyOrThrow`](api/-client-side%20typesafe%20-spine%20schema%20usage/opensavvy.spine.client/body-or-throw.md):
+On the client-side, the request body is passed as the second argument of the function [`request`](api/client/opensavvy.spine.client/request.md), and the response is acquired via the result of [`bodyOrThrow`](api/client/opensavvy.spine.client/-spine-response/index.md#bodyorthrow):
 
 ```kotlin
 val user = client.request(Users.createUser, UserCreationDto(name = "Bob"))

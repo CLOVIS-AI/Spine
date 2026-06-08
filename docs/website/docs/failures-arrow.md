@@ -1,6 +1,6 @@
 # Declare Ktor failures with Spine and Arrow
 
-Spine provides helper functions for the [Arrow Typed Errors library](https://arrow-kt.io/learn/typed-errors/working-with-typed-errors/). They are based on the `Raise` DSL and [context parameters](https://kotlinlang.org/docs/context-parameters.html), which you may need to [enable](https://kotlinlang.org/docs/context-parameters.html#how-to-enable-context-parameters).
+Spine provides helper functions for the [Arrow Typed Errors library](https://arrow-kt.io/learn/typed-errors/working-with-typed-errors/). They are based on the `Raise` DSL and [context parameters](https://kotlinlang.org/docs/context-parameters.html), a new feature in [Kotlin 2.4.0](https://kotlinlang.org/docs/whatsnew24.html).
 
 ## Declaring failures
 
@@ -22,7 +22,7 @@ Add a dependency on the `server-arrow` module:
     }
     ```
 
-    1. [List of versions](news/)
+    1. [List of versions](news/index.md)
 
 === "Kotlin Multiplatform"
 
@@ -42,9 +42,9 @@ Add a dependency on the `server-arrow` module:
     }
     ```
 
-    1. [List of versions](news/)
+    1. [List of versions](news/index.md)
 
-When declaring routes, replace `route` by `routeWithRaise`:
+When declaring routes, replace `route` by [`routeWithRaise`](api/server-arrow/opensavvy.spine.server.arrow/route-with-raise.md):
 
 the Arrow module adds:
 
@@ -76,7 +76,7 @@ routeWithRaise(Users.User.edit) {
 ```
 
 ??? info "Raise in Ktor endpoints without Spine"
-If you want to use the `Raise` DSL with Ktor, but don't want to use Spine, you can use our module `server-arrow-independent` which adds the function [`raise`](api/-server-side%20-arrow%20helpers/opensavvy.spine.server.arrow.independent/raise.md) to regular Ktor endpoints.
+    If you want to use the `Raise` DSL with Ktor, but don't want to use Spine, you can use our module `server-arrow-independent` which adds the function [`raise`](api/server-arrow-independent/opensavvy.spine.server.arrow.independent/raise.md) to regular Ktor endpoints.
 
 ## Client-side
 
@@ -94,7 +94,7 @@ Add a dependency on the `client-arrow` module:
     }
     ```
 
-    1. [List of versions](news/)
+    1. [List of versions](news/index.md)
 
 === "Kotlin Multiplatform"
 
@@ -114,9 +114,9 @@ Add a dependency on the `client-arrow` module:
     }
     ```
 
-    1. [List of versions](news/)
+    1. [List of versions](news/index.md)
 
-In addition to `.bodyOrThrow()`, `.bodyOrNull()` and `.handle()` ([learn more](failures.md#client-side)), this module adds the [`.body()`](api/-client-side%20typesafe%20-spine%20schema%20usage%20(with%20-arrow%20typed%20errors)/opensavvy.spine.client.arrow/body.md) function which raises each failure.
+In addition to `.bodyOrThrow()`, `.bodyOrNull()` and `.handle()` ([learn more](failures.md#client-side)), this module adds the [`.body()`](api/client-arrow/opensavvy.spine.client.arrow/body.md) function which raises each failure.
 
 ```kotlin
 context(Raise<NotFound>)

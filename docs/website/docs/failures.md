@@ -1,6 +1,6 @@
 # Declare Ktor failures with Spine
 
-> Reference: [`FailureSpec`](api/-multiplatform%20-ktor%20schema%20declaration/opensavvy.spine.api/-failure-spec)
+> Reference: [`FailureSpec`](api/api/opensavvy.spine.api/-failure-spec/index.md)
 
 ## Declaring failures
 
@@ -48,7 +48,7 @@ data class InvalidAge(val userId: String, val explain: String) : CannotProcessUs
 
 > If you use [Arrow Typed Errors](https://arrow-kt.io/learn/typed-errors/working-with-typed-errors/), you may be interested in [our dedicated support](failures-arrow.md).
 
-On the server-side, Spine adds the [`fail()`](api/-server-side%20typesafe%20-spine%20schema%20usage/opensavvy.spine.server/fail.md) method to fail with one of the declared failures:
+On the server-side, Spine adds the [`fail()`](api/server/opensavvy.spine.server/-typed-response-scope/index.md#fail) method to fail with one of the declared failures:
 
 ```kotlin
 route(Users.User.patch) {
@@ -74,9 +74,9 @@ Calling `fail()` interrupts the function, no further code is executed.
 
 On the client-side, users have the choice between:
 
-- Throwing an exception on any kind of failure with [`bodyOrThrow`](api/-client-side%20typesafe%20-spine%20schema%20usage/opensavvy.spine.client/body-or-throw.md).
-- Treating all failures as `#!kotlin null` with [`bodyOrNull`](api/-client-side%20typesafe%20-spine%20schema%20usage/opensavvy.spine.client/body-or-null.md).
-- Handle each failure separately with [`handle`](api/-client-side%20typesafe%20-spine%20schema%20usage/opensavvy.spine.client/handle.md).
+- Throwing an exception on any kind of failure with [`bodyOrThrow`](api/client/opensavvy.spine.client/-spine-response/index.md#bodyorthrow).
+- Treating all failures as `#!kotlin null` with [`bodyOrNull`](api/client/opensavvy.spine.client/-spine-response/index.md#bodyornull).
+- Handle each failure separately with [`handle`](api/client/opensavvy.spine.client/-spine-response/index.md#handle).
 
 The `handle` method accepts one handler for each declared failure.
 

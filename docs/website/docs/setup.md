@@ -47,7 +47,7 @@ For now, we will edit the shared module (called `shared` in our example). Start 
     }
     ```
 
-    1. [List of versions](news/)
+    1. [List of versions](news/index.md)
 
     Then, create the file `src/main/kotlin/Api.kt`.
 
@@ -69,7 +69,7 @@ For now, we will edit the shared module (called `shared` in our example). Start 
     }
     ```
 
-    1. [List of versions](news/)
+    1. [List of versions](news/index.md)
 
     Then, create the file `src/commonMain/kotlin/Api.kt`.
 
@@ -120,7 +120,7 @@ Start by adding the Spine dependency to your server-side module.
     }
     ```
 
-    1. [List of versions](news/)
+    1. [List of versions](news/index.md)
     2. Ensure the backend module has access to the endpoints we just declared.
 
     Then, create the file `src/main/kotlin/Ping.kt`.
@@ -144,7 +144,7 @@ Start by adding the Spine dependency to your server-side module.
     }
     ```
 
-    1. [List of versions](news/)
+    1. [List of versions](news/index.md)
     2. Ensure the backend module has access to the endpoints we just declared.
 
     Then, create the file `src/commonMain/kotlin/Ping.kt`.
@@ -218,7 +218,7 @@ Finally, we can call these methods on the frontend side. We'll start by declarin
     }
     ```
 
-    1. [List of versions](news/)
+    1. [List of versions](news/index.md)
     2. Ensure the frontend module has access to the endpoints we declared.
 
     Then, create the file `src/main/kotlin/Ping.kt`.
@@ -242,7 +242,7 @@ Finally, we can call these methods on the frontend side. We'll start by declarin
     }
     ```
 
-    1. [List of versions](news/)
+    1. [List of versions](news/index.md)
     2. Ensure the frontend module has access to the endpoints we declared.
 
     Then, create the file `src/commonMain/kotlin/Ping.kt`.
@@ -356,7 +356,7 @@ Modify the configuration of the backend:
 
     Then, create the file `src/commonTest/kotlin/PingTest.kt`.
 
-In this example, we'll use the [Prepared test framework](https://prepared.opensavvy.dev) using the [TestBalloon engine](https://prepared.opensavvy.dev/api-docs/runners/runner-testballoon/index.html) and the [Ktor compatibility module](https://prepared.opensavvy.dev/features/compat-ktor.html), which require additional configuration not shown here. However, you can follow the same steps with any other test framework.
+In this example, we'll use the [Prepared test framework](https://prepared.opensavvy.dev) using the [TestBalloon engine](https://prepared.opensavvy.dev/api/runner-testballoon/index.html) and the [Ktor compatibility module](https://prepared.opensavvy.dev/features/compat-ktor.html), which require additional configuration not shown here. However, you can follow the same steps with any other test framework.
 
 ```kotlin title="PingTest.kt"
 package your.app.test
@@ -399,7 +399,7 @@ val PingTest by preparedSuite { //(1)!
 }
 ```
 
-1. The `preparedSuite` DSL is the entrypoint for tests declared with [Prepared and TestBalloon](https://prepared.opensavvy.dev/api-docs/runners/runner-testballoon/index.html). If you use another test framework, it will be different.
+1. The `preparedSuite` DSL is the entrypoint for tests declared with [Prepared and TestBalloon](https://prepared.opensavvy.dev/api/runner-testballoon/index.html). If you use another test framework, it will be different.
 2. The `preparedServer` DSL allows declaring the Ktor TestHost as [a special test fixture](https://prepared.opensavvy.dev/features/compat-ktor.html). If you use another test framework, this is probably replaced by calling the `testApplication {}` function within each test.
 3. We always need at least `ContentNegotation`. Notice the import alias, used because we need both server and client negotiation in this file.
 4. We can configure the Ktor test host, just like a real server, with the `routing {}` block. To simplify tests, however, we will only register the routes related to the test, instead of registering the entire API.
