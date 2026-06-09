@@ -36,7 +36,7 @@ kotlin {
 }
 
 library {
-	name.set("Server-side Arrow helpers")
+	name.set("Server-side Arrow helpers (DEPRECATED)")
 	description.set("Declared Arrow Typed Errors in your Ktor servers")
 	homeUrl.set("https://gitlab.com/opensavvy/groundwork/spine")
 
