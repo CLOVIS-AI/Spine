@@ -20,7 +20,7 @@ kotlin {
 
 	sourceSets.commonMain.dependencies {
 		api(projects.server)
-		api(projects.serverArrowIndependent)
+		api(libs.arrow.core)
 	}
 
 	sourceSets.commonTest.dependencies {

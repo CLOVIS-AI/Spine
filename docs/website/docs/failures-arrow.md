@@ -76,7 +76,7 @@ routeWithRaise(Users.User.edit) {
 ```
 
 ??? info "Raise in Ktor endpoints without Spine"
-    If you want to use the `Raise` DSL with Ktor, but don't want to use Spine, you can use our module `server-arrow-independent` which adds the function [`raise`](api/server-arrow-independent/opensavvy.spine.server.arrow.independent/raise.md) to regular Ktor endpoints.
+    If you want to use the `Raise` DSL with Ktor, but don't want to use Spine, you can use the module [`arrow-kt.io:arrow-raise-ktor-server`](https://apidocs.arrow-kt.io/arrow-raise-ktor-server/index.html).
 
 ## Client-side
 
