@@ -14,14 +14,72 @@ import opensavvy.spine.api.FailureSpec.Or
 import opensavvy.spine.api.Parameters
 import kotlin.jvm.JvmName
 
+/**
+ * The various methods available within the handler of a Ktor endpoint.
+ *
+ * Full Ktor information is available via [call], as is standard in Ktor endpoints.
+ */
 @KtorDsl
 interface TypedResponseScope<out In : Any, out Out : Any, out Failure : FailureSpec, out Params : Parameters> {
+
+	/**
+	 * The standard Ktor [ApplicationCall] instance, which is used to access cookies
+	 * or any other information directly from Ktor.
+	 *
+	 * ### Example
+	 *
+	 * ```kotlin
+	 * routing {
+	 *     route(Api.Users.logIn) {
+	 *         // …perform log in…
+	 *
+	 *         call.response.cookies.append("my-auth", "123")
+	 *         respond(Unit)
+	 *     }
+	 * }
+	 * ```
+	 */
 	val call: ApplicationCall
 
+	/**
+	 * The declared Spine [endpoint][opensavvy.spine.api.AnyEndpoint] which was called by the user.
+	 */
 	val endpoint: Endpoint<out In, out Out, out Failure, out Params>
 
+	/**
+	 * The request body sent by the client.
+	 *
+	 * Spine automatically deserializes this value based on the [request][opensavvy.spine.api.AnyEndpoint.Builder.request] type declared in the endpoint.
+	 *
+	 * ### Example
+	 *
+	 * ```kotlin
+	 * routing {
+	 *     route(Api.Users.logIn) {
+	 *         println("User ${body.username} wants to log in…")
+	 *         // …
+	 *     }
+	 * }
+	 * ```
+	 */
 	val body: In
 
+	/**
+	 * The parameters sent by the client.
+	 *
+	 * Spine automatically deserializes this value based on the [parameters][opensavvy.spine.api.AnyEndpoint.Builder.parameters] type declared in the endpoint.
+	 *
+	 * ### Example
+	 *
+	 * ```kotlin
+	 * routing {
+	 *     route(Api.Users.list) {
+	 *         println("Include archived users? ${parameters.includeArchived}")
+	 *         // …
+	 *     }
+	 * }
+	 * ```
+	 */
 	val parameters: Params
 
 	/**
@@ -49,16 +107,79 @@ interface TypedResponseScope<out In : Any, out Out : Any, out Failure : FailureS
 			?: error("Could not find the required path parameter ${resource.slug} for resource $resource. This shouldn't be possible: Ktor shouldn't invoke this route if the path parameter is not provided by the client.")
 }
 
+/**
+ * Responds with the given [body].
+ *
+ * This method is identical to [ApplicationCall.respond] but verifies that the [body] type matches the one declared in the endpoint.
+ *
+ * ### Example
+ *
+ * ```kotlin
+ * routing {
+ *     route(Api.Users.logIn) {
+ *         val user = authService.verifyLogIn(body.username, body.password)
+ *         respond(user)
+ *     }
+ * }
+ * ```
+ *
+ * ### Parameters
+ *
+ * - `body`: a value of the response type declared in the endpoint.
+ * If the endpoint declared a response type of [Unit], or declared no response at all, this parameter is optional.
+ * - `code`: the HTTP status code to respond with.
+ * Defaults to [HttpStatusCode.NoContent] if the response type is [Unit] or if no response type is declared.
+ * Defaults to [HttpStatusCode.OK] for any other value.
+ */
 @KtorDsl
 suspend inline fun <reified Out : Any> TypedResponseScope<*, Out, *, *>.respond(body: Out, code: HttpStatusCode = if (body == Unit) HttpStatusCode.NoContent else HttpStatusCode.OK) {
 	call.respond(status = code, message = body)
 }
 
+/**
+ * Responds with the given [body].
+ *
+ * This method is identical to [ApplicationCall.respond] but verifies that the [body] type matches the one declared in the endpoint.
+ *
+ * ### Example
+ *
+ * ```kotlin
+ * routing {
+ *     route(Api.Users.logIn) {
+ *         val user = authService.verifyLogIn(body.username, body.password)
+ *         respond(user)
+ *     }
+ * }
+ * ```
+ *
+ * ### Parameters
+ *
+ * - `body`: a value of the response type declared in the endpoint.
+ * If the endpoint declared a response type of [Unit], or declared no response at all, this parameter is optional.
+ * - `code`: the HTTP status code to respond with.
+ * Defaults to [HttpStatusCode.NoContent] if the response type is [Unit] or if no response type is declared.
+ * Defaults to [HttpStatusCode.OK] for any other value.
+ */
 @KtorDsl
 suspend fun TypedResponseScope<*, Unit, *, *>.respond(code: HttpStatusCode = HttpStatusCode.NoContent) {
 	respond(Unit, code)
 }
 
+/**
+ * Fails the endpoint call with one of the declared [failures][opensavvy.spine.api.AnyEndpoint.Builder.failure].
+ *
+ * ### Example
+ *
+ * ```kotlin
+ * routing {
+ *     route(Api.Users.logIn) {
+ *         if (body.password.isBlank()) {
+ *             fail(InvalidPassword)
+ *         }
+ *     }
+ * }
+ * ```
+ */
 @KtorDsl
 @JvmName("fail1")
 suspend inline fun <reified F : Any> TypedResponseScope<*, *, Or<*, FailureSpec.ByCode<F>>, *>.fail(failure: F): Nothing {
@@ -67,6 +188,21 @@ suspend inline fun <reified F : Any> TypedResponseScope<*, *, Or<*, FailureSpec.
 	throw SpineShortCircuitException()
 }
 
+/**
+ * Fails the endpoint call with one of the declared [failures][opensavvy.spine.api.AnyEndpoint.Builder.failure].
+ *
+ * ### Example
+ *
+ * ```kotlin
+ * routing {
+ *     route(Api.Users.logIn) {
+ *         if (body.password.isBlank()) {
+ *             fail(InvalidPassword)
+ *         }
+ *     }
+ * }
+ * ```
+ */
 @KtorDsl
 @JvmName("fail2")
 suspend inline fun <reified F : Any> TypedResponseScope<*, *, Or<Or<*, FailureSpec.ByCode<F>>, Nothing>, *>.fail(failure: F): Nothing {
@@ -75,6 +211,21 @@ suspend inline fun <reified F : Any> TypedResponseScope<*, *, Or<Or<*, FailureSp
 	throw SpineShortCircuitException()
 }
 
+/**
+ * Fails the endpoint call with one of the declared [failures][opensavvy.spine.api.AnyEndpoint.Builder.failure].
+ *
+ * ### Example
+ *
+ * ```kotlin
+ * routing {
+ *     route(Api.Users.logIn) {
+ *         if (body.password.isBlank()) {
+ *             fail(InvalidPassword)
+ *         }
+ *     }
+ * }
+ * ```
+ */
 @KtorDsl
 @JvmName("fail3")
 suspend inline fun <reified F : Any> TypedResponseScope<*, *, Or<Or<Or<*, FailureSpec.ByCode<F>>, Nothing>, Nothing>, *>.fail(failure: F): Nothing {
@@ -83,6 +234,21 @@ suspend inline fun <reified F : Any> TypedResponseScope<*, *, Or<Or<Or<*, Failur
 	throw SpineShortCircuitException()
 }
 
+/**
+ * Fails the endpoint call with one of the declared [failures][opensavvy.spine.api.AnyEndpoint.Builder.failure].
+ *
+ * ### Example
+ *
+ * ```kotlin
+ * routing {
+ *     route(Api.Users.logIn) {
+ *         if (body.password.isBlank()) {
+ *             fail(InvalidPassword)
+ *         }
+ *     }
+ * }
+ * ```
+ */
 @KtorDsl
 @JvmName("fail4")
 suspend inline fun <reified F : Any> TypedResponseScope<*, *, Or<Or<Or<Or<*, FailureSpec.ByCode<F>>, Nothing>, Nothing>, Nothing>, Nothing>.fail(failure: F): Nothing {
@@ -91,6 +257,21 @@ suspend inline fun <reified F : Any> TypedResponseScope<*, *, Or<Or<Or<Or<*, Fai
 	throw SpineShortCircuitException()
 }
 
+/**
+ * Fails the endpoint call with one of the declared [failures][opensavvy.spine.api.AnyEndpoint.Builder.failure].
+ *
+ * ### Example
+ *
+ * ```kotlin
+ * routing {
+ *     route(Api.Users.logIn) {
+ *         if (body.password.isBlank()) {
+ *             fail(InvalidPassword)
+ *         }
+ *     }
+ * }
+ * ```
+ */
 @KtorDsl
 @JvmName("fail5")
 suspend inline fun <reified F : Any> TypedResponseScope<*, *, Or<Or<Or<Or<Or<*, FailureSpec.ByCode<F>>, Nothing>, Nothing>, Nothing>, Nothing>, Nothing>.fail(failure: F): Nothing {
@@ -99,6 +280,21 @@ suspend inline fun <reified F : Any> TypedResponseScope<*, *, Or<Or<Or<Or<Or<*, 
 	throw SpineShortCircuitException()
 }
 
+/**
+ * Fails the endpoint call with one of the declared [failures][opensavvy.spine.api.AnyEndpoint.Builder.failure].
+ *
+ * ### Example
+ *
+ * ```kotlin
+ * routing {
+ *     route(Api.Users.logIn) {
+ *         if (body.password.isBlank()) {
+ *             fail(InvalidPassword)
+ *         }
+ *     }
+ * }
+ * ```
+ */
 @KtorDsl
 @JvmName("fail6")
 suspend inline fun <reified F : Any> TypedResponseScope<*, *, Or<Or<Or<Or<Or<Or<*, FailureSpec.ByCode<F>>, Nothing>, Nothing>, Nothing>, Nothing>, Nothing>, Nothing>.fail(failure: F): Nothing {

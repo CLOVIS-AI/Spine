@@ -7,6 +7,23 @@ import io.ktor.server.routing.*
 import io.ktor.utils.io.*
 import opensavvy.spine.api.*
 
+/**
+ * Declares a Ktor handler matching a Spine [endpoint][opensavvy.spine.api.AnyEndpoint].
+ *
+ * ### Example
+ *
+ * ```kotlin
+ * routing {
+ *     route(Api.Users.logIn) {
+ *         val (user, token) = authService.verifyLogIn(body.username, body.password)
+ *         call.response.cookies.append("token", token)
+ *         respond(user)
+ *     }
+ * }
+ * ```
+ *
+ * For the full list of available methods, see [TypedResponseScope].
+ */
 @KtorDsl
 inline fun <reified In : Any, reified Out : Any, reified Failure : FailureSpec, reified Params : Parameters> Route.route(
 	endpoint: Endpoint<In, Out, Failure, Params>,
