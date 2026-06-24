@@ -4,7 +4,7 @@
 
 ktor = "3.5.0"                # https://github.com/ktorio/ktor/releases
 
-arrow = "2.2.2.1"             # https://github.com/arrow-kt/arrow/releases
+arrow = "2.2.3"               # https://github.com/arrow-kt/arrow/releases
 
 kotlinx-coroutines = "1.11.0" # https://github.com/Kotlin/kotlinx.coroutines/releases
 
