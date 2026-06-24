@@ -91,7 +91,7 @@ sealed class Resource(
 	 *
 	 * ### Properties
 	 *
-	 * - SHOULD NOT declare a [request][AnyEndpoint.Builder.request] body
+	 * - SHOULD NOT declare a [request][AnyEndpoint.Builder.request] body (use [query] instead)
 	 * - should declare a [response][AnyEndpoint.Builder.response] body
 	 * - should be [safe](https://developer.mozilla.org/en-US/docs/Glossary/Safe/HTTP)
 	 * - should be [idempotent](https://developer.mozilla.org/en-US/docs/Glossary/Idempotent)
@@ -118,6 +118,39 @@ sealed class Resource(
 	 * Learn more about [`GET` (MDN)](https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods/GET).
 	 */
 	protected fun get(path: String? = null) = endpoint(HttpMethod.Get, path)
+
+	/**
+	 * Creates a [`QUERY`][HttpMethod.Query] HTTP endpoint in this resource.
+	 *
+	 * `QUERY` endpoints are used to access information which requires complex data to access.
+	 * They can be thought of as `GET`-with-a-body.
+	 * They should not modify the state of any resources.
+	 *
+	 * ### Properties
+	 *
+	 * - should declare a [request][AnyEndpoint.Builder.request] body
+	 * - should declare a [response][AnyEndpoint.Builder.response] body
+	 * - should be [safe](https://developer.mozilla.org/en-US/docs/Glossary/Safe/HTTP)
+	 * - should be [idempotent](https://developer.mozilla.org/en-US/docs/Glossary/Idempotent)
+	 * - should be [cacheable](https://developer.mozilla.org/en-US/docs/Glossary/Cacheable)
+	 *
+	 * ### Example
+	 *
+	 * ```kotlin
+	 * object User : DynamicResource<Users>("user", parent = Users) {
+	 *
+	 *     // QUERY …/{user}/favorites
+	 *     val favorites by query("favorites")
+	 *         .request<FavoriteSearchCriteria>()
+	 *         .response<List<UserFavoriteDto>>()
+	 * }
+	 * ```
+	 *
+	 * To learn more about what can be customized on an endpoint, see [AnyEndpoint.Builder].
+	 *
+	 * Learn more about [`QUERY` (MDN)](https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods/QUERY).
+	 */
+	protected fun query(path: String? = null) = endpoint(HttpMethod.Query, path)
 
 	/**
 	 * Creates a [`POST`][HttpMethod.Post] HTTP endpoint in this resource.

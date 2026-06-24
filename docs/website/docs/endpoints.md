@@ -32,6 +32,7 @@ For the remainder of this page, the enclosing resource is omitted from code samp
 An endpoint is declared using `by` followed by the name of the HTTP method. The available methods are:
 
 - `by get()`: HTTP `GET`
+- `by query()`: HTTP `QUERY`
 - `by post()`: HTTP `POST`
 - `by put()`: HTTP `PUT`
 - `by patch()`: HTTP `PATCH`
