@@ -1,5 +1,6 @@
 package opensavvy.spine.api
 
+import kotlin.uuid.Uuid
 import opensavvy.prepared.suite.SuiteDsl
 import opensavvy.prepared.suite.assertions.checkThrows
 
@@ -118,8 +119,10 @@ fun SuiteDsl.parameters() = suite("Endpoint parameters") {
 
 			var float: Float by parameter()
 			var double: Double by parameter()
+			var uuid: Uuid by parameter()
 		}
 
+		val expectedUuid = Uuid.parse("123e4567-e89b-12d3-a456-426614174000")
 		val params = buildParameters(::Types) {
 			string = "thing"
 			bool = true
@@ -135,6 +138,7 @@ fun SuiteDsl.parameters() = suite("Endpoint parameters") {
 
 			float = 9f
 			double = 10.0
+			uuid = expectedUuid
 		}
 
 		check(params.string == "thing")
@@ -152,6 +156,7 @@ fun SuiteDsl.parameters() = suite("Endpoint parameters") {
 
 		check(params.float == 9f)
 		check(params.double == 10.0)
+		check(params.uuid == expectedUuid)
 
 		check(params.data == mapOf(
 			"string" to listOf("thing"),
@@ -169,6 +174,7 @@ fun SuiteDsl.parameters() = suite("Endpoint parameters") {
 
 			"float" to listOf("${9.0}"), // JVM: "9.0" — JS: "9"
 			"double" to listOf("${10.0}"),
+			"uuid" to listOf("123e4567-e89b-12d3-a456-426614174000"),
 		))
 	}
 }
