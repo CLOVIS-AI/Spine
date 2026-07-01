@@ -61,7 +61,9 @@ suspend inline fun <reified In : Any, reified Out : Any, reified Failure : Failu
 ): SpineResponse<Out, Failure> {
 	val result = request {
 		method = endpoint.data.method
-		url(endpoint.path.toString())
+		url {
+			pathSegments = endpoint.path.segments.map { it.text }
+		}
 
 		for ((name, values) in endpoint.data.buildParameters(HashMap()).apply(parameters).data)
 			for (value in values)
