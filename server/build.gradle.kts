@@ -32,7 +32,9 @@ kotlin {
 		implementation(libsCommon.kotlin.test)
 		implementation(libs.ktor.server.contentNegotiation)
 		implementation(libs.ktor.client.contentNegotiation)
+		implementation(libs.ktor.client.logging)
 		implementation(libs.ktor.kotlinxJson)
+		implementation(libs.slf4j.simple)
 		implementation(projects.client)
 		implementation(projects.clientArrow)
 	}
