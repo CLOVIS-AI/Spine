@@ -8,6 +8,8 @@ arrow = "2.2.3"               # https://github.com/arrow-kt/arrow/releases
 
 kotlinx-coroutines = "1.11.0" # https://github.com/Kotlin/kotlinx.coroutines/releases
 
+slf4j = "2.0.17"                # https://central.sonatype.com/artifact/org.slf4j/slf4j-simple
+
 [plugins]
 
 [libraries]
@@ -23,5 +25,7 @@ ktor-kotlinxJson = { module = "io.ktor:ktor-serialization-kotlinx-json", version
 arrow-core = { module = "io.arrow-kt:arrow-core", version.ref = "arrow" }
 
 kotlinx-coroutines = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinx-coroutines" }
+
+slf4j-simple = { module = "org.slf4j:slf4j-simple", version.ref = "slf4j" }
 
 [bundles]
