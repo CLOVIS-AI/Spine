@@ -2,6 +2,7 @@ package opensavvy.spine.api
 
 import kotlin.jvm.JvmInline
 import kotlin.reflect.KProperty
+import kotlin.uuid.Uuid
 
 /**
  * Underlying storage for [Parameters]: a mutable map of parameter names to their raw string values.
@@ -309,6 +310,7 @@ internal inline fun <reified T> stringToValue(value: String) = when (T::class) {
 	ULong::class -> value.toULong() as T
 	Float::class -> value.toFloat() as T
 	Double::class -> value.toDouble() as T
+	Uuid::class -> Uuid.parse(value) as T
 	else -> throw UnsupportedOperationException("The type ${T::class.simpleName ?: T::class.toString()} is not currently supported in parameters.")
 }
 
@@ -351,6 +353,7 @@ internal inline fun <reified T> valueToString(value: T) = when (value) {
 	is ULong -> value.toString()
 	is Float -> value.toString()
 	is Double -> value.toString()
+	is Uuid -> value.toString()
 	else -> throw UnsupportedOperationException("The type ${T::class.simpleName ?: T::class.toString()} is not currently supported in parameters.")
 }
 
