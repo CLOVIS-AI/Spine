@@ -48,7 +48,13 @@ private data class NotFound(val id: String) {
 }
 
 @Serializable
-private data class AlreadyExists(val id: String)
+private sealed interface UserCreationError {
+	@Serializable
+	data class AlreadyExists(val id: String) : UserCreationError
+
+	@Serializable
+	data class UsernameTooShort(val name: String) : UserCreationError
+}
 
 @Serializable
 private data class NotAllowed(val reason: String) {
@@ -62,6 +68,10 @@ private class UserSearchParams(data: ParameterStorage) : Parameters(data) {
 	var tags by listParameter<String>()
 }
 
+private class UserDeleteParams(data: ParameterStorage) : Parameters(data) {
+	var currentUser: String by parameter()
+}
+
 private object Routes : RootResource("routes") {
 
 	object Users : StaticResource<Routes>("users", Routes) {
@@ -72,7 +82,7 @@ private object Routes : RootResource("routes") {
 
 		val create by post()
 			.request<UserDto>()
-			.failure<AlreadyExists>(HttpStatusCode.Conflict)
+			.failure<UserCreationError>(HttpStatusCode.BadRequest)
 
 		object User : DynamicResource<Users>("user", Users) {
 
@@ -81,13 +91,9 @@ private object Routes : RootResource("routes") {
 				.failure(NotFound)
 
 			val delete by delete()
-				.parameters(::DeleteParams)
+				.parameters(::UserDeleteParams)
 				.failure(NotFound)
 				.failure(NotAllowed)
-
-			class DeleteParams(data: ParameterStorage) : Parameters(data) {
-				var currentUser: String by parameter()
-			}
 		}
 	}
 }
@@ -117,9 +123,12 @@ private val server by preparedServer {
 		}
 
 		route(Users.create) {
+			if (body.name.length < 3) {
+				fail(UserCreationError.UsernameTooShort(body.name))
+			}
 			dataLock.withLock("create $body") {
 				if (data.any { it.id == body.id }) {
-					fail(AlreadyExists(body.id))
+					fail(UserCreationError.AlreadyExists(body.id))
 				}
 				data += body
 			}
@@ -175,7 +184,14 @@ private suspend fun HttpClient.listUsers(includeDisabled: Boolean = false, name:
 ).bodyOrThrow()
 
 private suspend fun HttpClient.createUser(user: UserDto) = request(Routes / Users / Users.create, user).handle(
-	handle1 = { throw RuntimeException("Could not find user ${it.id}") },
+	handle1 = {
+		throw RuntimeException(
+			when (it) {
+				is UserCreationError.AlreadyExists -> "User with id ${it.id} already exists"
+				is UserCreationError.UsernameTooShort -> "Username ${it.name} is too short"
+			}
+		)
+	},
 	transform = { },
 )
 
@@ -215,7 +231,14 @@ fun SuiteDsl.routeTest() = suite("Route test") {
 		val e = checkThrows<RuntimeException> {
 			client().createUser(UserDto(userId(), "test", true, emptyList()))
 		}
-		check(e.message == "Could not find user ${userId()}")
+		check(e.message == "User with id ${userId()} already exists")
+	}
+
+	test("Cannot create a user with a short username") {
+		val e = checkThrows<RuntimeException> {
+			client().createUser(UserDto(userId(), "t", true, emptyList()))
+		}
+		check(e.message == "Username t is too short")
 	}
 
 	val enabledUser by prepared {
