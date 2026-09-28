@@ -13,7 +13,7 @@ import io.ktor.serialization.kotlinx.json.*
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.serialization.Serializable
-import opensavvy.prepared.compat.arrow.core.failOnRaise
+import opensavvy.prepared.compat.arrow.core.checkRaises
 import opensavvy.prepared.compat.ktor.preparedClient
 import opensavvy.prepared.compat.ktor.preparedServer
 import opensavvy.prepared.suite.SuiteDsl
@@ -79,8 +79,13 @@ private object Routes : RootResource("routes") {
 				.failure(NotFound)
 
 			val delete by delete()
+				.parameters(::DeleteParams)
 				.failure(NotFound)
 				.failure(NotAllowed)
+
+			class DeleteParams(data: ParameterStorage) : Parameters(data) {
+				var currentUser: String by parameter()
+			}
 		}
 	}
 }
@@ -124,7 +129,11 @@ private val server by preparedServer {
 		routeWithRaise(User.delete) {
 			val id = idOf(User)
 
-			dataLock.withLock("delete $id") { data.removeAll { it.id == id } }
+			ensure<NotAllowed>(parameters.currentUser == "admin") { NotAllowed("Current user does not have permission to delete users") }
+
+			val res = dataLock.withLock("delete $id") { data.removeAll { it.id == id } }
+
+			ensure<NotFound>(res) { NotFound(id) }
 
 			respond()
 		}
@@ -158,7 +167,12 @@ private suspend fun HttpClient.getUser(id: String) = request(Routes / Users / Us
 )
 
 context(_: Raise<NotFound>, _: Raise<NotAllowed>)
-private suspend fun HttpClient.deleteUser(id: String) = request(Routes / Users / User(id) / User.delete).body()
+private suspend fun HttpClient.deleteUser(id: String, currentUser: String = "admin") = request(
+	endpoint = Routes / Users / User(id) / User.delete,
+	parameters = {
+		this.currentUser = currentUser
+	}
+).body()
 
 // endregion
 
@@ -216,10 +230,13 @@ fun SuiteDsl.routeTest() = suite("Route test") {
 		check(client().getUser(user.id) == user)
 	}
 
-	test("Deleting a user") {
+	test("Cannot delete a user without permission") {
 		val user = enabledUser()
 
-		failOnRaise { client().deleteUser(user.id) }
-		check(client().listUsers() == emptyList<UserDto>())
+		checkRaises<NotAllowed> { client().deleteUser(user.id, "guest") }
+	}
+
+	test("Cannot delete a user that does not exist") {
+		checkRaises<NotFound> { client().deleteUser("1000") }
 	}
 }

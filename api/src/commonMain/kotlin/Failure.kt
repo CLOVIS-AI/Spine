@@ -83,7 +83,7 @@ sealed interface FailureSpec {
 	 * @see FailureSpec Learn more about failures.
 	 * @see FailureCompanion Easily implement [ByCode] for your companion objects.
 	 */
-	interface ByCode<out F> : FailureSpec {
+	interface ByCode<F> : FailureSpec {
 		val statusCode: HttpStatusCode
 	}
 
