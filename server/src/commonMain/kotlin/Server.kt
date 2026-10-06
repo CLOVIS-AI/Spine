@@ -4,7 +4,6 @@ package opensavvy.spine.server
 
 import io.ktor.server.request.*
 import io.ktor.server.routing.*
-import io.ktor.utils.io.*
 import opensavvy.spine.api.*
 
 /**
