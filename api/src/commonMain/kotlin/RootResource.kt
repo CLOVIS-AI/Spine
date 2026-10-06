@@ -24,7 +24,8 @@ abstract class RootResource(
 
 	init {
 		// Static resources' slug must be a valid path segment, since they appear as-is in the URL
-		Path.Segment(slug)
+		val _ = Path.Segment(slug)
+		// We don't care about the segment; this call is specifically to trigger validation
 	}
 
 	/**
