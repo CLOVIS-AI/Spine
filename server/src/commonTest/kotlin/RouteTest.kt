@@ -11,6 +11,7 @@ import io.ktor.serialization.kotlinx.json.*
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.serialization.Serializable
+import opensavvy.prepared.compat.arrow.core.checkRaises
 import opensavvy.prepared.compat.arrow.core.failOnRaise
 import opensavvy.prepared.compat.ktor.preparedClient
 import opensavvy.prepared.compat.ktor.preparedServer
@@ -47,7 +48,13 @@ private data class NotFound(val id: String) {
 }
 
 @Serializable
-private data class AlreadyExists(val id: String)
+private sealed interface UserCreationError {
+	@Serializable
+	data class AlreadyExists(val id: String) : UserCreationError
+
+	@Serializable
+	data class UsernameTooShort(val name: String) : UserCreationError
+}
 
 @Serializable
 private data class NotAllowed(val reason: String) {
@@ -61,6 +68,10 @@ private class UserSearchParams(data: ParameterStorage) : Parameters(data) {
 	var tags by listParameter<String>()
 }
 
+private class UserDeleteParams(data: ParameterStorage) : Parameters(data) {
+	var currentUser: String by parameter()
+}
+
 private object Routes : RootResource("routes") {
 
 	object Users : StaticResource<Routes>("users", Routes) {
@@ -71,7 +82,7 @@ private object Routes : RootResource("routes") {
 
 		val create by post()
 			.request<UserDto>()
-			.failure<AlreadyExists>(HttpStatusCode.Conflict)
+			.failure<UserCreationError>(HttpStatusCode.BadRequest)
 
 		object User : DynamicResource<Users>("user", Users) {
 
@@ -80,6 +91,7 @@ private object Routes : RootResource("routes") {
 				.failure(NotFound)
 
 			val delete by delete()
+				.parameters(::UserDeleteParams)
 				.failure(NotFound)
 				.failure(NotAllowed)
 		}
@@ -111,9 +123,12 @@ private val server by preparedServer {
 		}
 
 		route(Users.create) {
+			if (body.name.length < 3) {
+				fail(UserCreationError.UsernameTooShort(body.name))
+			}
 			dataLock.withLock("create $body") {
 				if (data.any { it.id == body.id }) {
-					fail(AlreadyExists(body.id))
+					fail(UserCreationError.AlreadyExists(body.id))
 				}
 				data += body
 			}
@@ -135,7 +150,15 @@ private val server by preparedServer {
 		route(User.delete) {
 			val id = idOf(User)
 
-			dataLock.withLock("delete $id") { data.removeAll { it.id == id } }
+			if (parameters.currentUser != "admin") {
+				fail(NotAllowed("Current user does not have permission to delete users"))
+			}
+
+			val res = dataLock.withLock("delete $id") { data.removeAll { it.id == id } }
+
+			if (!res) {
+				fail(NotFound(id))
+			}
 
 			respond()
 		}
@@ -161,7 +184,14 @@ private suspend fun HttpClient.listUsers(includeDisabled: Boolean = false, name:
 ).bodyOrThrow()
 
 private suspend fun HttpClient.createUser(user: UserDto) = request(Routes / Users / Users.create, user).handle(
-	handle1 = { throw RuntimeException("Could not find user ${it.id}") },
+	handle1 = {
+		throw RuntimeException(
+			when (it) {
+				is UserCreationError.AlreadyExists -> "User with id ${it.id} already exists"
+				is UserCreationError.UsernameTooShort -> "Username ${it.name} is too short"
+			}
+		)
+	},
 	transform = { },
 )
 
@@ -171,7 +201,12 @@ private suspend fun HttpClient.getUser(id: String) = request(Routes / Users / Us
 )
 
 context(_: Raise<NotFound>, _: Raise<NotAllowed>)
-private suspend fun HttpClient.deleteUser(id: String) = request(Routes / Users / User(id) / User.delete).body()
+private suspend fun HttpClient.deleteUser(id: String, currentUser: String = "admin") = request(
+	endpoint = Routes / Users / User(id) / User.delete,
+	parameters = {
+		this.currentUser = currentUser
+	}
+).body()
 
 // endregion
 
@@ -196,7 +231,14 @@ fun SuiteDsl.routeTest() = suite("Route test") {
 		val e = checkThrows<RuntimeException> {
 			client().createUser(UserDto(userId(), "test", true, emptyList()))
 		}
-		check(e.message == "Could not find user ${userId()}")
+		check(e.message == "User with id ${userId()} already exists")
+	}
+
+	test("Cannot create a user with a short username") {
+		val e = checkThrows<RuntimeException> {
+			client().createUser(UserDto(userId(), "t", true, emptyList()))
+		}
+		check(e.message == "Username t is too short")
 	}
 
 	val enabledUser by prepared {
@@ -259,5 +301,17 @@ fun SuiteDsl.routeTest() = suite("Route test") {
 
 		failOnRaise { client().deleteUser(user.id) }
 		check(client().listUsers() == emptyList<UserDto>())
+
+		checkRaises<NotFound> { client().deleteUser("1000") }
+	}
+
+	test("Cannot delete a user without permission") {
+		val user = enabledUser()
+
+		checkRaises<NotAllowed> { client().deleteUser(user.id, "guest") }
+	}
+
+	test("Cannot delete a user that does not exist") {
+		checkRaises<NotFound> { client().deleteUser("1000") }
 	}
 }

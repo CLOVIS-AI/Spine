@@ -10,6 +10,7 @@ import kotlinx.coroutines.CancellationException
 import opensavvy.spine.api.DynamicResource
 import opensavvy.spine.api.Endpoint
 import opensavvy.spine.api.FailureSpec
+import opensavvy.spine.api.FailureSpec.ByCode
 import opensavvy.spine.api.FailureSpec.Or
 import opensavvy.spine.api.Parameters
 import kotlin.jvm.JvmName
@@ -182,7 +183,7 @@ suspend fun TypedResponseScope<*, Unit, *, *>.respond(code: HttpStatusCode = Htt
  */
 @KtorDsl
 @JvmName("fail1")
-suspend inline fun <reified F : Any> TypedResponseScope<*, *, Or<*, FailureSpec.ByCode<F>>, *>.fail(failure: F): Nothing {
+suspend inline fun <reified F : Any> TypedResponseScope<*, *, Or<*, ByCode<F>>, *>.fail(failure: F): Nothing {
 	val spec = endpoint.failureSpec.b
 	call.respond(status = spec.statusCode, message = failure)
 	throw SpineShortCircuitException()
@@ -205,7 +206,7 @@ suspend inline fun <reified F : Any> TypedResponseScope<*, *, Or<*, FailureSpec.
  */
 @KtorDsl
 @JvmName("fail2")
-suspend inline fun <reified F : Any> TypedResponseScope<*, *, Or<Or<*, FailureSpec.ByCode<F>>, Nothing>, *>.fail(failure: F): Nothing {
+suspend inline fun <reified F : Any> TypedResponseScope<*, *, Or<Or<*, ByCode<F>>, *>, *>.fail(failure: F): Nothing {
 	val spec = endpoint.failureSpec.a.b
 	call.respond(status = spec.statusCode, message = failure)
 	throw SpineShortCircuitException()
@@ -228,7 +229,7 @@ suspend inline fun <reified F : Any> TypedResponseScope<*, *, Or<Or<*, FailureSp
  */
 @KtorDsl
 @JvmName("fail3")
-suspend inline fun <reified F : Any> TypedResponseScope<*, *, Or<Or<Or<*, FailureSpec.ByCode<F>>, Nothing>, Nothing>, *>.fail(failure: F): Nothing {
+suspend inline fun <reified F : Any> TypedResponseScope<*, *, Or<Or<Or<*, ByCode<F>>, *>, *>, *>.fail(failure: F): Nothing {
 	val spec = endpoint.failureSpec.a.a.b
 	call.respond(status = spec.statusCode, message = failure)
 	throw SpineShortCircuitException()
@@ -251,7 +252,7 @@ suspend inline fun <reified F : Any> TypedResponseScope<*, *, Or<Or<Or<*, Failur
  */
 @KtorDsl
 @JvmName("fail4")
-suspend inline fun <reified F : Any> TypedResponseScope<*, *, Or<Or<Or<Or<*, FailureSpec.ByCode<F>>, Nothing>, Nothing>, Nothing>, Nothing>.fail(failure: F): Nothing {
+suspend inline fun <reified F : Any> TypedResponseScope<*, *, Or<Or<Or<Or<*, ByCode<F>>, *>, *>, *>, *>.fail(failure: F): Nothing {
 	val spec = endpoint.failureSpec.a.a.a.b
 	call.respond(status = spec.statusCode, message = failure)
 	throw SpineShortCircuitException()
@@ -274,7 +275,7 @@ suspend inline fun <reified F : Any> TypedResponseScope<*, *, Or<Or<Or<Or<*, Fai
  */
 @KtorDsl
 @JvmName("fail5")
-suspend inline fun <reified F : Any> TypedResponseScope<*, *, Or<Or<Or<Or<Or<*, FailureSpec.ByCode<F>>, Nothing>, Nothing>, Nothing>, Nothing>, Nothing>.fail(failure: F): Nothing {
+suspend inline fun <reified F : Any> TypedResponseScope<*, *, Or<Or<Or<Or<Or<*, ByCode<F>>, *>, *>, *>, *>, *>.fail(failure: F): Nothing {
 	val spec = endpoint.failureSpec.a.a.a.a.b
 	call.respond(status = spec.statusCode, message = failure)
 	throw SpineShortCircuitException()
@@ -297,7 +298,7 @@ suspend inline fun <reified F : Any> TypedResponseScope<*, *, Or<Or<Or<Or<Or<*, 
  */
 @KtorDsl
 @JvmName("fail6")
-suspend inline fun <reified F : Any> TypedResponseScope<*, *, Or<Or<Or<Or<Or<Or<*, FailureSpec.ByCode<F>>, Nothing>, Nothing>, Nothing>, Nothing>, Nothing>, Nothing>.fail(failure: F): Nothing {
+suspend inline fun <reified F : Any> TypedResponseScope<*, *, Or<Or<Or<Or<Or<Or<*, ByCode<F>>, *>, *>, *>, *>, *>, *>.fail(failure: F): Nothing {
 	val spec = endpoint.failureSpec.a.a.a.a.a.b
 	call.respond(status = spec.statusCode, message = failure)
 	throw SpineShortCircuitException()
