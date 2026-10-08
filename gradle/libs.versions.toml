@@ -2,13 +2,13 @@
 
 [versions]
 
-ktor = "3.5.0"                # https://github.com/ktorio/ktor/releases
+ktor = "3.6.0"                # https://github.com/ktorio/ktor/releases
 
 arrow = "2.2.3"               # https://github.com/arrow-kt/arrow/releases
 
 kotlinx-coroutines = "1.11.0" # https://github.com/Kotlin/kotlinx.coroutines/releases
 
-slf4j = "2.0.17"                # https://central.sonatype.com/artifact/org.slf4j/slf4j-simple
+slf4j = "2.0.20"              # https://central.sonatype.com/artifact/org.slf4j/slf4j-simple
 
 [plugins]
 

@@ -132,7 +132,6 @@ interface TypedResponseScope<out In : Any, out Out : Any, out Failure : FailureS
  * Defaults to [HttpStatusCode.NoContent] if the response type is [Unit] or if no response type is declared.
  * Defaults to [HttpStatusCode.OK] for any other value.
  */
-@KtorDsl
 suspend inline fun <reified Out : Any> TypedResponseScope<*, Out, *, *>.respond(body: Out, code: HttpStatusCode = if (body == Unit) HttpStatusCode.NoContent else HttpStatusCode.OK) {
 	call.respond(status = code, message = body)
 }
@@ -161,7 +160,6 @@ suspend inline fun <reified Out : Any> TypedResponseScope<*, Out, *, *>.respond(
  * Defaults to [HttpStatusCode.NoContent] if the response type is [Unit] or if no response type is declared.
  * Defaults to [HttpStatusCode.OK] for any other value.
  */
-@KtorDsl
 suspend fun TypedResponseScope<*, Unit, *, *>.respond(code: HttpStatusCode = HttpStatusCode.NoContent) {
 	respond(Unit, code)
 }
@@ -181,7 +179,6 @@ suspend fun TypedResponseScope<*, Unit, *, *>.respond(code: HttpStatusCode = Htt
  * }
  * ```
  */
-@KtorDsl
 @JvmName("fail1")
 suspend inline fun <reified F : Any> TypedResponseScope<*, *, Or<*, ByCode<F>>, *>.fail(failure: F): Nothing {
 	val spec = endpoint.failureSpec.b
@@ -204,7 +201,6 @@ suspend inline fun <reified F : Any> TypedResponseScope<*, *, Or<*, ByCode<F>>, 
  * }
  * ```
  */
-@KtorDsl
 @JvmName("fail2")
 suspend inline fun <reified F : Any> TypedResponseScope<*, *, Or<Or<*, ByCode<F>>, *>, *>.fail(failure: F): Nothing {
 	val spec = endpoint.failureSpec.a.b
@@ -227,7 +223,6 @@ suspend inline fun <reified F : Any> TypedResponseScope<*, *, Or<Or<*, ByCode<F>
  * }
  * ```
  */
-@KtorDsl
 @JvmName("fail3")
 suspend inline fun <reified F : Any> TypedResponseScope<*, *, Or<Or<Or<*, ByCode<F>>, *>, *>, *>.fail(failure: F): Nothing {
 	val spec = endpoint.failureSpec.a.a.b
@@ -250,7 +245,6 @@ suspend inline fun <reified F : Any> TypedResponseScope<*, *, Or<Or<Or<*, ByCode
  * }
  * ```
  */
-@KtorDsl
 @JvmName("fail4")
 suspend inline fun <reified F : Any> TypedResponseScope<*, *, Or<Or<Or<Or<*, ByCode<F>>, *>, *>, *>, *>.fail(failure: F): Nothing {
 	val spec = endpoint.failureSpec.a.a.a.b
@@ -273,7 +267,6 @@ suspend inline fun <reified F : Any> TypedResponseScope<*, *, Or<Or<Or<Or<*, ByC
  * }
  * ```
  */
-@KtorDsl
 @JvmName("fail5")
 suspend inline fun <reified F : Any> TypedResponseScope<*, *, Or<Or<Or<Or<Or<*, ByCode<F>>, *>, *>, *>, *>, *>.fail(failure: F): Nothing {
 	val spec = endpoint.failureSpec.a.a.a.a.b
@@ -296,7 +289,6 @@ suspend inline fun <reified F : Any> TypedResponseScope<*, *, Or<Or<Or<Or<Or<*, 
  * }
  * ```
  */
-@KtorDsl
 @JvmName("fail6")
 suspend inline fun <reified F : Any> TypedResponseScope<*, *, Or<Or<Or<Or<Or<Or<*, ByCode<F>>, *>, *>, *>, *>, *>, *>.fail(failure: F): Nothing {
 	val spec = endpoint.failureSpec.a.a.a.a.a.b

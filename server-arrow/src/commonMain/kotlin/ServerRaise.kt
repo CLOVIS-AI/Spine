@@ -5,7 +5,6 @@ package opensavvy.spine.server.arrow
 import arrow.core.raise.Raise
 import arrow.core.raise.recover
 import io.ktor.server.routing.*
-import io.ktor.utils.io.*
 import opensavvy.spine.api.Endpoint
 import opensavvy.spine.api.FailureSpec.*
 import opensavvy.spine.api.Parameters
@@ -37,7 +36,6 @@ import kotlin.jvm.JvmName
  *
  * For the full list of available methods, see [TypedResponseScope].
  */
-@KtorDsl
 @JvmName("routeOrRaise1")
 inline fun <reified In : Any, reified Out : Any, reified F1 : Any, reified Failure : Or<Never, ByCode<F1>>, reified Params : Parameters> Route.routeWithRaise(
 	endpoint: Endpoint<In, Out, Failure, Params>,
@@ -74,7 +72,6 @@ inline fun <reified In : Any, reified Out : Any, reified F1 : Any, reified Failu
  *
  * For the full list of available methods, see [TypedResponseScope].
  */
-@KtorDsl
 @JvmName("routeOrRaise2")
 inline fun <reified In : Any, reified Out : Any, reified F1 : Any, reified F2 : Any, reified Failure : Or<Or<Never, ByCode<F1>>, ByCode<F2>>, reified Params : Parameters> Route.routeWithRaise(
 	endpoint: Endpoint<In, Out, Failure, Params>,
@@ -116,7 +113,6 @@ inline fun <reified In : Any, reified Out : Any, reified F1 : Any, reified F2 : 
  *
  * For the full list of available methods, see [TypedResponseScope].
  */
-@KtorDsl
 @JvmName("routeOrRaise3")
 inline fun <reified In : Any, reified Out : Any, reified F1 : Any, reified F2 : Any, reified F3 : Any, reified Failure : Or<Or<Or<Never, ByCode<F1>>, ByCode<F2>>, ByCode<F3>>, reified Params : Parameters> Route.routeWithRaise(
 	endpoint: Endpoint<In, Out, Failure, Params>,
@@ -163,7 +159,6 @@ inline fun <reified In : Any, reified Out : Any, reified F1 : Any, reified F2 : 
  *
  * For the full list of available methods, see [TypedResponseScope].
  */
-@KtorDsl
 @JvmName("routeOrRaise4")
 inline fun <reified In : Any, reified Out : Any, reified F1 : Any, reified F2 : Any, reified F3 : Any, reified F4 : Any, reified Failure : Or<Or<Or<Or<Never, ByCode<F1>>, ByCode<F2>>, ByCode<F3>>, ByCode<F4>>, reified Params : Parameters> Route.routeWithRaise(
 	endpoint: Endpoint<In, Out, Failure, Params>,
@@ -215,7 +210,6 @@ inline fun <reified In : Any, reified Out : Any, reified F1 : Any, reified F2 : 
  *
  * For the full list of available methods, see [TypedResponseScope].
  */
-@KtorDsl
 @JvmName("routeOrRaise5")
 inline fun <reified In : Any, reified Out : Any, reified F1 : Any, reified F2 : Any, reified F3 : Any, reified F4 : Any, reified F5 : Any, reified Failure : Or<Or<Or<Or<Or<Never, ByCode<F1>>, ByCode<F2>>, ByCode<F3>>, ByCode<F4>>, ByCode<F5>>, reified Params : Parameters> Route.routeWithRaise(
 	endpoint: Endpoint<In, Out, Failure, Params>,
@@ -272,7 +266,6 @@ inline fun <reified In : Any, reified Out : Any, reified F1 : Any, reified F2 : 
  *
  * For the full list of available methods, see [TypedResponseScope].
  */
-@KtorDsl
 @JvmName("routeOrRaise6")
 inline fun <reified In : Any, reified Out : Any, reified F1 : Any, reified F2 : Any, reified F3 : Any, reified F4 : Any, reified F5 : Any, reified F6 : Any, reified Failure : Or<Or<Or<Or<Or<Or<Never, ByCode<F1>>, ByCode<F2>>, ByCode<F3>>, ByCode<F4>>, ByCode<F5>>, ByCode<F6>>, reified Params : Parameters> Route.routeWithRaise(
 	endpoint: Endpoint<In, Out, Failure, Params>,

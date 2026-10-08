@@ -4,7 +4,6 @@ package opensavvy.spine.server
 
 import io.ktor.server.request.*
 import io.ktor.server.routing.*
-import io.ktor.utils.io.*
 import opensavvy.spine.api.*
 
 /**
@@ -24,7 +23,6 @@ import opensavvy.spine.api.*
  *
  * For the full list of available methods, see [TypedResponseScope].
  */
-@KtorDsl
 inline fun <reified In : Any, reified Out : Any, reified Failure : FailureSpec, reified Params : Parameters> Route.route(
 	endpoint: Endpoint<In, Out, Failure, Params>,
 	crossinline block: suspend TypedResponseScope<In, Out, Failure, Params>.() -> Unit,
