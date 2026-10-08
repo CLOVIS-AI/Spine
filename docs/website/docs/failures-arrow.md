@@ -2,6 +2,9 @@
 
 Spine provides helper functions for the [Arrow Typed Errors library](https://arrow-kt.io/learn/typed-errors/working-with-typed-errors/). They are based on the `Raise` DSL and [context parameters](https://kotlinlang.org/docs/context-parameters.html), a new feature in [Kotlin 2.4.0](https://kotlinlang.org/docs/whatsnew24.html).
 
+!!! tip "See a demo"
+    Interested in a complete demo? The [Ktor + Arrow example](https://github.com/nomisRev/ktor-arrow-example) uses Spine to define its [API](https://github.com/nomisRev/ktor-arrow-example/blob/main/src/main/kotlin/io/github/nomisrev/Api.kt)!
+
 ## Declaring failures
 
 Declaring failures with the Arrow compatibility modules is identical to declaring failures with the base Spine module. [Read the dedicated article](failures.md#declaring-failures).
